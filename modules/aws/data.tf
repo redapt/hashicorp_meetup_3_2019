@@ -1,8 +1,3 @@
-# Define DataSources
-data "aws_vpc" "selected" {
-  id = "${aws_vpc.vpc.id}"
-}
-
 data "aws_availability_zones" "all" {}
 
 data "aws_region" "current" {
