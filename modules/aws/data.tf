@@ -1,7 +1,6 @@
 data "aws_availability_zones" "all" {}
 
-data "aws_region" "current" {
-}
+data "aws_region" "current" {}
 
 data "aws_ami" "ubuntu" {
   most_recent = true

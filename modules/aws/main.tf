@@ -11,12 +11,18 @@ resource "aws_instance" "docker" {
   key_name      = "${var.key_name}"
   tags          = "${var.tags}"
 
+  root_block_device {
+    volume_size = 32
+    volume_type = "gp2"
+  }
+
   provisioner "remote-exec" {
     script = "${var.script_path}"
+
     connection {
-      type = "ssh"
-      user = "ubuntu"
-      agent = true
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
       agent_identity = "ubuntu"
     }
   }
