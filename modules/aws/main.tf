@@ -45,10 +45,11 @@ resource "aws_instance" "docker" {
 
   provisioner "remote-exec" {
     script = "${var.script_path}"
+
     connection {
-      type = "ssh"
-      user = "ubuntu"
-      agent = true
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
       agent_identity = "ubuntu"
     }
   }
