@@ -1,11 +1,11 @@
 variable "cidr_block" {
   description = "The CIDR block for the VPC."
-  default = "10.12.0.0/16"
+  default     = "10.12.0.0/16"
 }
 
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
-  default   = { }
+  default     = {}
 }
 
 variable "key_name" {
@@ -14,4 +14,8 @@ variable "key_name" {
 
 variable "public_key_path" {
   description = "The path to the public key to upload to KMS"
+}
+
+variable "script_path" {
+  description = "Path to the script housing your userdata setup."
 }

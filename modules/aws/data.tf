@@ -6,7 +6,6 @@ data "aws_vpc" "selected" {
 data "aws_availability_zones" "all" {}
 
 data "aws_region" "current" {
-  current = true
 }
 
 data "aws_ami" "ubuntu" {
