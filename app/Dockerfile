@@ -1,14 +1,20 @@
 FROM microsoft/dotnet:2.1-sdk AS build
 
-COPY ./cu21 /app
+COPY ./cu21 /builder
 
-WORKDIR /app
+WORKDIR /builder
 
 RUN dotnet build -c Release -r linux-x64 && \
-    dotnet publish -c Release -o published
+    dotnet publish -c Release -o /published
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime as runtime
 
-COPY --from=build published /app
+ARG SQLCONNSTR_SchoolContext 
 
-RUN dotnet app/RedaptUniversity.dll
+COPY --from=build /published /app
+
+WORKDIR /app
+
+EXPOSE 80 443
+
+ENTRYPOINT [ "dotnet", "RedaptUniversity.dll" ]
