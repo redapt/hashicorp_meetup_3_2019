@@ -1,0 +1,3 @@
+CREATE LOGIN RedaptUser with PASSWORD='R3dapt123!';
+ALTER SERVER ROLE dbcreator ADD MEMBER RedaptUser;
+GO
