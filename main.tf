@@ -14,3 +14,28 @@ module "azure" {
   public_key_path = "${var.public_key_path}"
   name            = "hashicorp-meetup"
 }
+
+module "cloudflare" {
+  source = "./modules/cloudflare"
+  domain_name = "${var.domain_name}"
+  num_records = "${var.num_records}"
+  record_names = [
+    "redaptu",
+    "redaptdb"
+  ]
+  record_value = [
+    "${module.aws.public_ip}",
+    "${module.azure.public_ip}"
+  ]
+  proxied = "${var.proxied}"
+}
+
+module "letsencrypt" {
+  source = "./modules/acme"
+  email_address = "${var.email_address}"
+  domain_name = "${var.domain_name}"
+  subject_alternative_names = [
+    "redaptu.redaptdemo.com",
+    "redaptdb.redaptdemo.com"
+  ]
+}
