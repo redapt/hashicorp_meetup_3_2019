@@ -35,11 +35,13 @@ pipeline{
                     az login --identity
                 '''
 
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
-                    [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
-                    ])
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
+                string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]) 
                 {
+
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
 
                     echo "Initialize Terraform"
                     retry(3) {
