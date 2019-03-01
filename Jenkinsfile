@@ -60,11 +60,13 @@ pipeline{
                             -var subject_alternative_name=[${subject_alternative_names}] \
                             -out platform.plan
                     '''
-
-                    echo "Apply Platform Plan"
-                    sh'''
-                        terraform apply platform.plan
-                    '''
+                    
+                    sshagent(['meetup_ssh']) {
+                        echo "Apply Platform Plan"
+                        sh'''
+                            terraform apply platform.plan
+                        '''
+                    }
                 }
             }
         }
