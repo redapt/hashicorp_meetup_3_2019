@@ -33,7 +33,7 @@ pipeline{
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
                     string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
-                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')]
+                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
                     ]) 
                 {
 
@@ -72,6 +72,36 @@ pipeline{
 
                     echo "Apply Platform Plan"
                     sh'''
+         
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
                         terraform apply platform.plan
                     '''
                 }
@@ -79,6 +109,240 @@ pipeline{
         }
     }
     post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
+         
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
+                        terraform apply platform.plan
+                    '''
+                }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
+         
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
+                        terraform apply platform.plan
+                    '''
+                }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
+         
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
+                        terraform apply platform.plan
+                    '''
+                }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
+        }
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
+                        terraform apply platform.plan
+                    '''
+                }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
+    }
+    post{
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            terraform init -input=false
+                        '''
+                    }
+
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks=${cidr_blocks} \
+                            -var public_key_path=${public_key_path} \
+                            -var userdata_path=${userdata_path} \
+                            -var domain_name=${domain_name} \
+                            -var record_names=[${record_names}] \
+                            -var record_value=[${record_value}] \
+                            -var proxied=${proxied} \
+                            -var email_address=${email_address} \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+
+                    echo "Apply Platform Plan"
+                    sh'''
+                        terraform apply platform.plan
+                    '''
+                }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
         success{
             echo "========pipeline executed successfully ========"
         }
