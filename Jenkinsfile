@@ -28,7 +28,6 @@ pipeline{
         stage("Setup Platform"){
             steps {
                 withCredentials([
-                    azureManagedServiceIdentity(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_service_principal', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID'), 
                     [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
                     ])
