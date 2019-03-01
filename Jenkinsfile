@@ -7,15 +7,15 @@ pipeline{
         CLOUDFLARE_EMAIL = 'cloudsupport@redapt.com'
     }
     parameters {
-        string(name: 'cidr_blocks', description: 'The CIDR block for the VPC/vNet', defaultValue: '10.12.0.0/16'),
-        string(name: 'public_key_path', description: 'The path to the public key to upload to KMS', defaultValue: './meetup_sshkey.pub'),
-        string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh'),
-        string(name: 'domain_name', description: 'The domain name being administered by CloudFlare.', defaultValue: 'redaptdemo.com'),
-        choice(name: 'record_type', description: 'The type of DNS record to create.', choices: ['A','SRV','TXT'], defaultValue: 'A'),
-        string(name: 'record_names', description: 'The names of the records that you want to apply'),
-        string(name: 'record_value', description: 'The string value of the record(s)'),
-        booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false),
-        string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com'),
+        string(name: 'cidr_blocks', description: 'The CIDR block for the VPC/vNet', defaultValue: '10.12.0.0/16')
+        string(name: 'public_key_path', description: 'The path to the public key to upload to KMS', defaultValue: './meetup_sshkey.pub')
+        string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh')
+        string(name: 'domain_name', description: 'The domain name being administered by CloudFlare.', defaultValue: 'redaptdemo.com')
+        choice(name: 'record_type', description: 'The type of DNS record to create.', choices: ['A','SRV','TXT'], defaultValue: 'A')
+        string(name: 'record_names', description: 'The names of the records that you want to apply')
+        string(name: 'record_value', description: 'The string value of the record(s)')
+        booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false)
+        string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com')
         string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
     }
     stages{
