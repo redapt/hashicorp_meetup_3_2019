@@ -26,14 +26,13 @@ pipeline{
             }
         }
         stage("Setup Platform"){
-            withCredentials([
-                azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID'), 
-                [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
-                [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
-                ])
-            {
-                steps {
-
+            steps {
+                withCredentials([
+                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID'), 
+                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
+                    ])
+                {
                     echo "Login to Azure"
                     sh'''
                         az login -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --service-principal --tenant ${ARM_TENANT_ID}
