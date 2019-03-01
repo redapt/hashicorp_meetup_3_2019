@@ -30,15 +30,16 @@ pipeline{
                 
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
 
+                echo "Login to Azure"
+                sh'''
+                    az login --identity
+                '''
+
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
                     ])
                 {
-                    echo "Login to Azure"
-                    sh'''
-                        az login --identity
-                    '''
 
                     echo "Initialize Terraform"
                     retry(3) {
