@@ -4,6 +4,7 @@ pipeline{
     environment {
         TF_IN_AUTOMATION = 1
         CLOUDFLARE_EMAIL = 'cloudsupport@redapt.com'
+        ARM_USE_MSI=true
     }
     parameters {
         string(name: 'cidr_blocks', description: 'The CIDR block for the VPC/vNet', defaultValue: '10.12.0.0/16')
@@ -34,7 +35,7 @@ pipeline{
                 {
                     echo "Login to Azure"
                     sh'''
-                        az login -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --service-principal --tenant ${ARM_TENANT_ID}
+                        az login --identity
                     '''
 
                     echo "Initialize Terraform"
