@@ -1,46 +1,76 @@
-node() {
-    properties([
-        parameters([
-            string(name: 'cidr_block', description: 'The CIDR block for the VPC', defaultValue: '10.12.0.0/16'),
-            string(name: 'public_key_path', description: 'The path to the public key to upload to KMS', default: './meetup_sshkey.pub'),
-            string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh'),
-            string(name: 'tags', description: 'A mapping of tags to assign to the resource (k="v",k="v" format)', defaultValue: ''),
-            string(name: 'public_key_path', description: 'The path to the public key to upload to KMS', defaultValue: './meetup_sshkey.pub'),
-            string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh'),
-            string(name: 'num_records', description: 'The number of records to create.', defaultValue: '2'),
-            string(name: 'record_type', description: 'The type of DNS record to create', defaultValue: 'A'),
-            string(name: 'record_names', description: 'The names of the records to create.', defaultValue: '"redaptu","redaptdb"'),
-            booleanParam(name: 'cloudflare_proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false),
-            string(name: 'email_address', description: 'The contact email address for the account', defaultValue: 'cloudsupport@redapt.com'),
-            string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.', defaultValue: '"redaptu.redaptdemo.com","redaptdb.redaptdemo.com"')
-        ])
-    ])
-
-    stage('terraform init - VMs') {
-        sh '''
-            terraform init -input=false
-        '''
+pipeline{
+    agent{
+        label "any"
     }
-
-    stage('terraform plan - VMs') {
-        sh '''
-            terraform plan -input=false \
-                -out vmplan \
-                -var cidr_block=${cidr_block} \
-                -var public_key_path=${public_key_path} \
-                -var userdata_path=${userdata_path} \
-                -var num_records=${num_records} \
-                -var record_type=${record_type} \
-                -var record_names=[${record_names}] \
-                -var proxied=${cloudflare_proxied} \
-                -var email_address=${email_address} \
-                -var subject_alternative_names=[${subject_alternative_names}]
-        '''
+    environment {
+        TF_IN_AUTOMATION = 1
+        CLOUDFLARE_EMAIL = 'cloudsupport@redapt.com'
     }
+    parameters {
+        string(name: 'cidr_blocks', description: 'The CIDR block for the VPC/vNet', defaultValue: '10.12.0.0/16'),
+        string(name: 'public_key_path', description: 'The path to the public key to upload to KMS', defaultValue: './meetup_sshkey.pub'),
+        string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh'),
+        string(name: 'domain_name', description: 'The domain name being administered by CloudFlare.', defaultValue: 'redaptdemo.com'),
+        choice(name: 'record_type', description: 'The type of DNS record to create.', choices: ['A','SRV','TXT'], defaultValue: 'A'),
+        string(name: 'record_names', description: 'The names of the records that you want to apply'),
+        string(name: 'record_value', description: 'The string value of the record(s)'),
+        booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false),
+        string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com'),
+        string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
+    }
+    stages{
+        stage("Clear Previous Workspace"){
+            echo "Clean previous environment"
+            deleteDir()
+        }
+        stage("Setup Platform"){
+            steps{
+                withCredentials([
+                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID'), 
+                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    [string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]
+                    ])
+                    {
+                        echo "Login to Azure"
+                        sh'''
+                            az login -u ${ARM_CLIENT_ID} -p ${ARM_CLIENT_SECRET} --service-principal --tenant ${ARM_TENANT_ID}
+                        '''
 
-    stage('terraform apply - VMs') {
-        sh '''
-            terraform apply vmplan
-        '''
+                        echo "Initialize Terraform"
+                        retry(3) {
+                            sh'''
+                                terraform init -input=false
+                            '''
+                        }
+
+                        echo "Terraform Plan - Platform"
+                        sh'''
+                            terraform plan -var cidr_blocks=${cidr_blocks} \
+                                -var public_key_path=${public_key_path} \
+                                -var userdata_path=${userdata_path} \
+                                -var domain_name=${domain_name} \
+                                -var record_names=[${record_names}] \
+                                -var record_value=[${record_value}] \
+                                -var proxied=${proxied} \
+                                -var email_address=${email_address} \
+                                -var subject_alternative_name=[${subject_alternative_names}] \
+                                -out platform.plan
+                        '''
+
+                        echo "Apply Platform Plan"
+                        sh'''
+                            terraform apply platform.plan
+                        '''
+                    }
+            }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
     }
 }
