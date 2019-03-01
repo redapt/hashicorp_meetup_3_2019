@@ -1,7 +1,6 @@
 pipeline{
-    agent{
-        label "any"
-    }
+    agent any
+    
     environment {
         TF_IN_AUTOMATION = 1
         CLOUDFLARE_EMAIL = 'cloudsupport@redapt.com'
