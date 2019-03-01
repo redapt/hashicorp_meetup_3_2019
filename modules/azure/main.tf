@@ -55,7 +55,6 @@ resource "azurerm_virtual_machine" "vm" {
   os_profile {
     computer_name  = "${local.name_prefix}-azure-vm"
     admin_username = "ubuntu"
-    custom_data    = "${file(var.script_path)}"
   }
 
   os_profile_linux_config {
@@ -78,5 +77,16 @@ resource "azurerm_virtual_machine" "vm" {
     offer     = "UbuntuServer"
     sku       = "18.04-LTS"
     version   = "latest"
+  }
+
+  provisioner "remote-exec" {
+    script = "${var.script_path}"
+
+    connection {
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
+      agent_identity = "ubuntu"
+    }
   }
 }

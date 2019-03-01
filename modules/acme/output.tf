@@ -11,7 +11,7 @@ output "account_ref" {
 }
 
 output "private_key_pem" {
-  value = "${acme_certificate.cert.private_key_pem}"
+  value     = "${acme_certificate.cert.private_key_pem}"
   sensitive = true
 }
 

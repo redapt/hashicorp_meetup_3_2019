@@ -5,7 +5,8 @@ variable "cidr_block" {
 
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
-  default     = {
+
+  default = {
     Terraform = true
     Project   = "Hashicorp Meetup 3/6/2019"
   }
@@ -23,35 +24,36 @@ variable "userdata_path" {
 
 variable "domain_name" {
   description = "The domain name being administered by CloudFlare."
-  default = "redaptdemo.com"
+  default     = "redaptdemo.com"
 }
 
 variable "record_type" {
   description = "The type of DNS record to create"
-  default = "A"
+  default     = "A"
 }
 
 variable "record_names" {
-  type = "list"
+  type        = "list"
   description = "The names of the records that you want to apply"
+
   default = [
     "redaptu",
-    "redaptdb"
+    "redaptdb",
   ]
 }
 
 variable "proxied" {
   description = "Whether the record gets Cloudflare's origin protection; defaults to false."
-  default = false
+  default     = false
 }
 
 variable "email_address" {
   description = "The contact email address for the account."
-  default = "cloudsupport@redapt.com"
+  default     = "cloudsupport@redapt.com"
 }
 
 variable "subject_alternative_names" {
-  type = "list"
+  type        = "list"
   description = "The certificate's subject alternative names, domains that this certificate will also be recognized for."
-  default = []
+  default     = []
 }

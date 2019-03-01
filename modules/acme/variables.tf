@@ -1,7 +1,6 @@
-
 variable "email_address" {
   description = "The contact email address for the account."
-  default = "cloudsupport@redapt.com"
+  default     = "cloudsupport@redapt.com"
 }
 
 variable "domain_name" {
@@ -9,8 +8,7 @@ variable "domain_name" {
 }
 
 variable "subject_alternative_names" {
-  type = "list"
+  type        = "list"
   description = "The certificate's subject alternative names, domains that this certificate will also be recognized for."
-  default = []
+  default     = []
 }
-
