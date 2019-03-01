@@ -18,11 +18,8 @@ module "azure" {
 module "cloudflare" {
   source = "./modules/cloudflare"
   domain_name = "${var.domain_name}"
-  num_records = "${var.num_records}"
-  record_names = [
-    "redaptu",
-    "redaptdb"
-  ]
+  num_records = "${length(var.record_names)}"
+  record_names = "${var.record_names}"
   record_value = [
     "${module.aws.public_ip}",
     "${module.azure.public_ip}"

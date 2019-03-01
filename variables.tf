@@ -5,7 +5,10 @@ variable "cidr_block" {
 
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
-  default     = {}
+  default     = {
+    Terraform = true
+    Project   = "Hashicorp Meetup 3/6/2019"
+  }
 }
 
 variable "public_key_path" {
@@ -20,10 +23,7 @@ variable "userdata_path" {
 
 variable "domain_name" {
   description = "The domain name being administered by CloudFlare."
-}
-
-variable "num_records" {
-  description = "The number of records to create"
+  default = "redaptdemo.com"
 }
 
 variable "record_type" {
@@ -34,11 +34,10 @@ variable "record_type" {
 variable "record_names" {
   type = "list"
   description = "The names of the records that you want to apply"
-}
-
-variable "record_value" {
-  type = "list"
-  description = "The string value of the record."
+  default = [
+    "redaptu",
+    "redaptdb"
+  ]
 }
 
 variable "proxied" {
