@@ -30,13 +30,17 @@ pipeline{
                 
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
 
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
-                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN')]) 
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
+                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
+                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')]
+                    ]) 
                 {
 
                     echo "Login to Azure"
                     sh'''
                         az login --identity
+                        az account set -s 
                     '''
 
                     sh'''
@@ -52,6 +56,8 @@ pipeline{
 
                     echo "Terraform Plan - Platform"
                     sh'''
+                        export USE_ARM_MSI=true
+
                         terraform plan -var cidr_blocks=${cidr_blocks} \
                             -var public_key_path=${public_key_path} \
                             -var userdata_path=${userdata_path} \
