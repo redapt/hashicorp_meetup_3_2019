@@ -21,7 +21,8 @@ pipeline{
     stages{
         stage("Fetch sources"){
             steps 
-            {                    
+            {   
+                deleteDir()         
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
             }
         }
