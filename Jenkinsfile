@@ -121,39 +121,39 @@ pipeline{
                     def records = record_names.split(',')
                     def frontend_ip = sh (script: "dig ${records[0].substring(1, records[0].length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
                     def backend_ip = sh(script: "dig ${records[1].substring(1, records[1].length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
-                }
                 
-                withCredentials([
-                    azureServicePrincipal(
-                        clientIdVariable: 'ARM_CLIENT_ID',
-                        clientSecretVariable: 'ARM_CLIENT_SECRET', 
-                        credentialsId: 'azure_demo_creds', 
-                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
-                        tenantIdVariable: 'ARM_TENANT_ID'),
-                    usernamePassword(
-                        credentialsId: 'dockerhub', 
-                        passwordVariable: 'DOCKERHUB_SECRET', 
-                        usernameVariable: 'DOCKERHUB_USER')
-                    ])
-                {
-                    dir('app_config') {
-                        sh """
-                            yes | terraform init
-                        """
+                    withCredentials([
+                        azureServicePrincipal(
+                            clientIdVariable: 'ARM_CLIENT_ID',
+                            clientSecretVariable: 'ARM_CLIENT_SECRET', 
+                            credentialsId: 'azure_demo_creds', 
+                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
+                            tenantIdVariable: 'ARM_TENANT_ID'),
+                        usernamePassword(
+                            credentialsId: 'dockerhub', 
+                            passwordVariable: 'DOCKERHUB_SECRET', 
+                            usernameVariable: 'DOCKERHUB_USER')
+                        ])
+                    {
+                        dir('app_config') {
+                            sh """
+                                yes | terraform init
+                            """
 
-                        sh"""
-                            terraform plan -input=false \
-                                -var frontend_ip=${frontend_ip} \
-                                -var backend_ip=${backend_ip} \
-                                -var domain_name=${domain_name} \
-                                -var docker_username=${DOCKERHUB_USER} \
-                                -var docker_password=${DOCKERHUB_SECRET} \
-                                -out docker.plan
-                        """
+                            sh"""
+                                terraform plan \
+                                    -var frontend_ip=${frontend_ip} \
+                                    -var backend_ip=${backend_ip} \
+                                    -var domain_name=${domain_name} \
+                                    -var docker_username=${DOCKERHUB_USER} \
+                                    -var docker_password=${DOCKERHUB_SECRET} \
+                                    -out docker.plan
+                            """
 
-                        sh'''
-                            terraform apply docker.plan
-                        '''
+                            sh'''
+                                terraform apply docker.plan
+                            '''
+                        }
                     }
                 }
             }
