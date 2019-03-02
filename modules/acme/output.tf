@@ -6,10 +6,6 @@ output "certificate_domain" {
   value = "${acme_certificate.cert.certificate_domain}"
 }
 
-output "account_ref" {
-  value = "${acme_certificate.cert.account_ref}"
-}
-
 output "private_key_pem" {
   value     = "${acme_certificate.cert.private_key_pem}"
   sensitive = true
