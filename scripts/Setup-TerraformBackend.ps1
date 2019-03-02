@@ -28,6 +28,7 @@ try {
     Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName -ErrorAction Stop
     Write-Host "Storage Account Name: $storageAccountName exists in Resource Group: $resourceGroupName"
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
+    $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
     Write-Output "access_key=`"$($keys[0])`"" | Out-File -FilePath ./terraform.tfvars
 }
 catch {
@@ -36,15 +37,12 @@ catch {
 }
 
 try {
-    Get-AzStorageContainer -Name $storageContainerName -ErrorAction Stop
+    Get-AzStorageContainer -Name $storageContainerName -Context -ErrorAction Stop
     Write-Host "Storage Container $storageContainerName exists"
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
-    if ($keys){
-        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
-    }
-    else {
+    if (-not ($keys)) {
         $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
     }
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
