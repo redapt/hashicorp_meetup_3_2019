@@ -29,7 +29,8 @@ try {
     Write-Host "Storage Account Name: $storageAccountName exists in Resource Group: $resourceGroupName"
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
     $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
-    $env:ARM_ACCESS_KEY=$keys[0]
+    $env:ARM_ACCESS_KEY=$keys[0].Value
+    Write-Output "access_key=$keys[0].Value" | Out-File -FilePath ../terraform.tfvars
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
