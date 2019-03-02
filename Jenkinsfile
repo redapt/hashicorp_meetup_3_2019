@@ -66,7 +66,7 @@ pipeline{
                             echo "Initialize Terraform"
                             retry(3) {
                                 sh'''
-                                   yes | terraform init -input=false
+                                   yes | terraform init
                                 '''
                             }
 
