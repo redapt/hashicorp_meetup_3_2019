@@ -37,7 +37,7 @@ pipeline{
                 {
                     dir('scripts'){
                         sh '''
-                            Setup-TerraformBackend.ps1
+                            powershell Setup-TerraformBackend.ps1
                         '''
                     }
                 }
