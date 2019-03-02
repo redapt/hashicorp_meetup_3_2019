@@ -48,9 +48,9 @@ catch {
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
     $connstr_array = $ctx.ConnectionString.Split(';')
     $accountKey = $connstr_array[$connstr_array.Length - 1].Split('=')
-    Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ./terraform.tfvars
+    Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ../terraform.tfvars
 }
 
 
-Write-Output "container_name=`"$($storageContainerName)`"" | Out-File -FilePath ./terraform.tfvars -Append
-Write-Output "key=`"hashicorp-platform.tfstate`"" | Out-File -FilePath ./terraform.tfvars -Append
+Write-Output "container_name=`"$($storageContainerName)`"" | Out-File -FilePath ../terraform.tfvars -Append
+Write-Output "key=`"hashicorp-platform.tfstate`"" | Out-File -FilePath ../terraform.tfvars -Append
