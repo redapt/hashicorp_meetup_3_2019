@@ -1,5 +1,5 @@
 if(-not(Get-Module -ListAvailable -Name Az)){
-    Install-Module Az -Force
+    Install-Module Az -Force -Scope CurrentUser
 }
 
 [PSCredential]$Creds = [pscredential]::new($env:ARM_CLIENT_ID,$(ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force))
