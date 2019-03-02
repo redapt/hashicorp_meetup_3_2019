@@ -37,7 +37,7 @@ catch {
 }
 
 try {
-    Get-AzStorageContainer -Name $storageContainerName -Context -ErrorAction Stop
+    Get-AzStorageContainer -Name $storageContainerName -Context $ctx -ErrorAction Stop
     Write-Host "Storage Container $storageContainerName exists"
 }
 catch {
