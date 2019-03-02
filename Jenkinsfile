@@ -36,16 +36,13 @@ pipeline{
                         subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
                         tenantIdVariable: 'ARM_TENANT_ID')])
                 {
-                    try {
-                        dir('scripts'){
-                            sh '''
-                                powershell Setup-TerraformBackend.ps1
-                            '''
-                        }
-                    } catch (error){
-                        echo "Failed setting up backend configuration"
-                        throw error
+
+                    dir('scripts'){
+                        sh '''
+                            powershell Setup-TerraformBackend.ps1
+                        '''
                     }
+
                 }
                 sleep 5
             }
