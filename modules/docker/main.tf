@@ -1,5 +1,6 @@
 
 resource "docker_container" "frontend" {
+  alias = "fe"
   depends_on = [
     "docker_container.mssql",
     "null_resource.setup_sql"
@@ -54,6 +55,7 @@ resource "null_resource" "add_remote_files" {
 }
 
 resource "docker_container" "nginx" {
+  alias = "fe"
   depends_on = ["null_resource.add_remote_files"]
   name = "${data.docker_registry_image.nginx.name}"
   pull_triggers = ["${data.docker_registry_image.nginx.sha256_digest}"]
@@ -100,6 +102,7 @@ resource "random_string" "sql_password" {
 
 
 resource "docker_container" "mssql" {
+  alias = "db"
   name = "${data.docker_registry_image.mssql.name}"
   pull_triggers = ["${data.docker_registry_image.mssql.sha256_digest}"]
   restart = "always"
