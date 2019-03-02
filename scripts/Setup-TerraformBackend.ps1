@@ -2,10 +2,10 @@ if(-not(Get-Module -ListAvailable -Name Az)){
     Install-Module Az -Force -Scope CurrentUser
 }
 
-[PSCredential]$Creds = [pscredential]::new($env:ARM_CLIENT_ID,$(ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force))
+#[PSCredential]$Creds = [pscredential]::new($env:ARM_CLIENT_ID,$(ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force))
 
 Import-Module Az
-Connect-AzAccount -Tenant $env:ARM_TENANT_ID -ServicePrincipal -Credential $Creds
+#Connect-AzAccount -Tenant $env:ARM_TENANT_ID -ServicePrincipal -Credential $Creds
 
 $resourceGroupName = "hashicorp-meetup-backend-rg"
 $location = "WestUS2"
@@ -29,7 +29,7 @@ try {
     Write-Host "Storage Account Name: $storageAccountName exists in Resource Group: $resourceGroupName"
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
     $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
-    Write-Output "access_key=`"$($keys[0])`"" | Out-File -FilePath ./terraform.tfvars
+    $env:ARM_ACCESS_KEY=$keys[0]
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
