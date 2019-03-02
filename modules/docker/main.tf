@@ -3,16 +3,51 @@ resource "docker_container" "frontend" {
   depends_on = ["docker_container.mssql"]
   name = "${data.docker_registry_image.redaptu.name}"
   pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
-  // It gets ugly to start threading deps here.  We need Databases, Connection Strings...  This is ugly!
+ 
+ // Terraform is not an orchestrator, Jenkins however... is!
+ env {
+
+ }
 }
 
 resource "null_resource" "add_remote_files" {
-  provisioner "remote-exec" {
-    inline = [
-      "echo ${data.terraform_remote_state.state.certificate_pem} | tee /home/ubuntu/cert.pem",
-      "echo ${data.terraform_remote_state.state.private_key_pem} | tee /home/ubuntu/cert.key",
-      "echo ${data.template_file.nginx.rendered} | tee /home/ubuntu/redaptu.conf" 
-    ]
+  provisioner "file" {
+    content =  "${data.terraform_remote_state.state.certificate_pem}"
+    destination = "/home/ubuntu/cert.pem"
+
+    connection {
+      host           = "${var.frontend_ip}"
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
+      agent_identity = "ubuntu"
+    }
+  }
+
+  provisioner "file" {
+    content =  "${data.terraform_remote_state.state.private_key_pem}"
+    destination = "/home/ubuntu/cert.key"
+
+    connection {
+      host           = "${var.frontend_ip}"
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
+      agent_identity = "ubuntu"
+    }
+  }
+
+  provisioner "file" {
+    content =  "${data.template_file.nginx.rendered}"
+    destination = "/home/ubuntu/redaptu.conf"
+
+    connection {
+      host           = "${var.frontend_ip}"
+      type           = "ssh"
+      user           = "ubuntu"
+      agent          = true
+      agent_identity = "ubuntu"
+    }
   }
 }
 
@@ -52,7 +87,7 @@ resource "docker_container" "nginx" {
 
   volumes {
     host_path = "/home/ubuntu/cert.pem"
-    container_path = "/etc/nginx/cert.key"
+    container_path = "/etc/nginx/cert.pem"
   }
 }
 
