@@ -41,8 +41,13 @@ try {
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
-    $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
+    if ($keys){
+        $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
+    }
+    else {
+        $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
+    }
     $connstr_array = $ctx.ConnectionString.Split(';')
     $accountKey = $connstr_array[$connstr_array.Length - 1].Split('=')
     Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ./terraform.tfvars
