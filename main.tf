@@ -18,7 +18,6 @@ module "azure" {
 module "cloudflare" {
   source       = "./modules/cloudflare"
   domain_name  = "${var.domain_name}"
-  num_records  = "${length(var.record_names)}"
   record_names = "${var.record_names}"
 
   record_value = [
