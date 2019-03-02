@@ -25,6 +25,24 @@ pipeline{
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
             }
         }
+        stage("Setup Terraform Backend"){
+            steps {
+                withCredentials([
+                    azureServicePrincipal(
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET', 
+                        credentialsId: 'azure_demo_creds', 
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
+                        tenantIdVariable: 'ARM_TENANT_ID')])
+                {
+                    dir('scripts'){
+                        sh '''
+                            Setup-TerraformBackend.ps1
+                        '''
+                    }
+                }
+            }
+        }
         stage("Build App and Platform"){
             parallel {
                 stage('Build Terraform Base'){
@@ -44,7 +62,8 @@ pipeline{
                             echo "Initialize Terraform"
                             retry(3) {
                                 sh'''
-                                    terraform init -input=false
+                                    terraform init -input=false \
+                                        -backend-config=terraform.tfvars
                                 '''
                             }
 
