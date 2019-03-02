@@ -114,13 +114,11 @@ pipeline{
                 }
 
                 stage('Setup Docker'){
-                    steps {
-                        def records = record_names.split(',')
-                        def frontend_ip = sh (script: "dig ${records[0].substring(1, records[0].Length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
-                        def backend_ip = sh(script: 'dig ${records[1].substring(1, records[1].Length() - 1)}.redaptdemo.com +short', returnStdout: true).trim()
-
-                        
+                    steps {                        
                         dir('app_config') {
+                            def records = record_names.split(',')
+                            def frontend_ip = sh (script: "dig ${records[0].substring(1, records[0].Length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
+                            def backend_ip = sh(script: 'dig ${records[1].substring(1, records[1].Length() - 1)}.redaptdemo.com +short', returnStdout: true).trim()
                             sh """
                                 yes | terraform init
                             """
