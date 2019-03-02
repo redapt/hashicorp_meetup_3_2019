@@ -26,3 +26,12 @@ data "template_file" "nginx" {
     DOMAIN_NAME = "${var.domain_name}"
   }
 }
+
+data "template_file" "connection_string" {
+  template = "${file("${path.module}/templates/connstr.tpl")}"
+
+  vars = {
+    DB_IP = "${var.database_ip}"
+  }
+}
+

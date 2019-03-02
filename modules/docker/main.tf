@@ -1,12 +1,14 @@
 
 resource "docker_container" "frontend" {
-  depends_on = ["docker_container.mssql"]
+  depends_on = [
+    "docker_container.mssql",
+    "null_resource.setup_sql"
+  ]
   name = "${data.docker_registry_image.redaptu.name}"
   pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
  
- // Terraform is not an orchestrator, Jenkins however... is!
  env {
-
+   SQLCONNSTR_SchoolContext = "${data.template_file.connection_string.rendered}"
  }
 }
 
@@ -111,5 +113,19 @@ resource "docker_container" "mssql" {
   env {
     ACCEPT_EULA = true
     SA_PASSWORD = "${random_string.sql_password.result}"
+  }
+}
+
+resource "null_resource" "setup_sql" {
+  depends_on = ["docker_container.mssql"]
+  provisioner "local-exec" {
+    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"${file("${path.module}/scripts/SQLConfig.sql")}\""
+  }
+
+  provisioner "local-exec" {
+    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"CREATE DATABASE 'CU-1'; GO\""
+  }
+  provisioner "local-exec" {
+    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"${file("${path.module}/scripts/populatedb.sql")}\""
   }
 }
