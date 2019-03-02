@@ -27,13 +27,13 @@ catch {
 try {
     Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName -ErrorAction Stop
     Write-Host "Storage Account Name: $storageAccountName exists in Resource Group: $resourceGroupName"
+    $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
+    Write-Output "access_key=`"$($keys[0])`"" | Out-File -FilePath ./terraform.tfvars
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
     $storageAccount = New-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName -Location $location -SkuName Standard_LRS
 }
-
-$ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
 
 try {
     Get-AzStorageContainer -Name $storageContainerName -ErrorAction Stop
@@ -41,11 +41,13 @@ try {
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
+    $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
+    $connstr_array = $ctx.ConnectionString.Split(';')
+    $accountKey = $connstr_array[$connstr_array.Length - 1].Split('=')
+    Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ./terraform.tfvars
 }
 
-$connstr_array = $ctx.ConnectionString.Split(';')
-$accountKey = $connstr_array[$connstr_array.Length - 1].Split('=')
-Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ./terraform.tfvars
+
 Write-Output "container_name=`"$($storageContainerName)`"" | Out-File -FilePath ./terraform.tfvars -Append
 Write-Output "key=`"hashicorp-platform.tfstate`"" | Out-File -FilePath ./terraform.tfvars -Append

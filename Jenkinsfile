@@ -63,8 +63,7 @@ pipeline{
                             echo "Initialize Terraform"
                             retry(3) {
                                 sh'''
-                                    terraform init -input=false \
-                                        -backend-config=terraform.tfvars
+                                    terraform init -input=false -backend-config=terraform.tfvars
                                 '''
                             }
 
