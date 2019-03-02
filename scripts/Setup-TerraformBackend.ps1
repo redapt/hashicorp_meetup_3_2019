@@ -42,7 +42,7 @@ try {
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
-    if (-not ($keys)) {
+    if (-not ($ctx)) {
         $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
     }
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
