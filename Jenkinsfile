@@ -19,54 +19,75 @@ pipeline{
         string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
     }
     stages{
-        stage("Clear Previous Workspace"){
+        stage("Fetch sources"){
             steps 
-            {                   
-                deleteDir()     
+            {                    
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
             }
         }
-        stage("Create Terraform Platform"){
-            steps {
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
-                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
-                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'),
-                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
-                    ]) 
-                {                
-                    sh'''
-                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
-                    '''
+        stage("Build App and Platform"){
+            parallel {
+                stage('Build Terraform Base'){
+                    agent any
+                    steps {
+                        withCredentials([
+                            [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
+                            string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
+                            string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'),
+                            azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
+                            ]) 
+                        {                
+                            sh'''
+                                export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                            '''
 
-                    echo "Initialize Terraform"
-                    retry(3) {
-                        sh'''
-                            terraform init -input=false
-                        '''
+                            echo "Initialize Terraform"
+                            retry(3) {
+                                sh'''
+                                    terraform init -input=false
+                                '''
+                            }
+
+                            echo "Terraform Plan - Platform"
+                            sh'''
+                                export USE_ARM_MSI=true
+
+                                terraform plan -var cidr_blocks="${cidr_blocks}" \
+                                    -var public_key_path="${public_key_path}" \
+                                    -var userdata_path="${userdata_path}" \
+                                    -var domain_name="${domain_name}" \
+                                    -var record_names=[${record_names}] \
+                                    -var record_value=[${record_value}] \
+                                    -var proxied=${proxied} \
+                                    -var email_address="${email_address}" \
+                                    -var subject_alternative_name=[${subject_alternative_names}] \
+                                    -out platform.plan
+                            '''
+
+                            sshagent(['meetup_ssh']) {
+                                echo "Apply Platform Plan"
+                                sh'''
+                                    terraform apply platform.plan
+                                '''
+                            }
+                        }
                     }
+                }
+                stage('Build Website Container') {
+                    agent any
+                    steps {
+                        dir('app') {
+                            sh'''
+                                docker build . -t iancornett/redaptuniversity:latest -t iancornett/redaptuniversity
+                            '''
 
-                    echo "Terraform Plan - Platform"
-                    sh'''
-                        export USE_ARM_MSI=true
-
-                        terraform plan -var cidr_blocks="${cidr_blocks}" \
-                            -var public_key_path="${public_key_path}" \
-                            -var userdata_path="${userdata_path}" \
-                            -var domain_name="${domain_name}" \
-                            -var record_names=[${record_names}] \
-                            -var record_value=[${record_value}] \
-                            -var proxied=${proxied} \
-                            -var email_address="${email_address}" \
-                            -var subject_alternative_name=[${subject_alternative_names}] \
-                            -out platform.plan
-                    '''
-
-                    sshagent(['meetup_ssh']) {
-                        echo "Apply Platform Plan"
-                        sh'''
-                            terraform apply platform.plan
-                        '''
+                            withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_SECRET', usernameVariable: 'DOCKERHUB_USER')]) {
+                                sh'''
+                                    echo ${DOCKERHUB_SECRET} | docker login -u ${DOCKERHUB_USER} --password-stdin
+                                    docker push iancornett/redaptuniversity
+                                '''
+                            }
+                        }
                     }
                 }
             }
