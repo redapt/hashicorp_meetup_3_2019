@@ -42,8 +42,9 @@ pipeline{
                                 powershell Setup-TerraformBackend.ps1
                             '''
                         }
-                    } catch {
-                        error "Failed Backend Setup"
+                    } catch (error){
+                        echo "Failed setting up backend configuration"
+                        throw error
                     }
                 }
                 sleep 5
