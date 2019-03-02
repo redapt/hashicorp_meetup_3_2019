@@ -29,35 +29,35 @@ output "issuer_pem" {
 
 output "id" {
   description = "The ID(s) of the records being created"
-  value       = "${module.cloudflare.*.id}"
+  value       = "${module.cloudflare.id}"
 }
 
 output "hostname" {
   description = "The FQDN of the record"
-  value       = "${module.cloudflare.*.hostname}"
+  value       = "${module.cloudflare.hostname}"
 }
 
 output "proxiable" {
   description = "Shows whether this record can be proxied, must be true if setting proxied=true"
-  value       = "${module.cloudflare.*.proxiable}"
+  value       = "${module.cloudflare.proxiable}"
 }
 
 output "created_on" {
   description = "The RFC3339 timestamp of when the record was created"
-  value       = "${module.cloudflare.*.created_on}"
+  value       = "${module.cloudflare.created_on}"
 }
 
 output "modified_on" {
   description = "The RFC3339 timestamp of when the record was last modified"
-  value       = "${module.cloudflare.*.modified_on}"
+  value       = "${module.cloudflare.modified_on}"
 }
 
 output "metadata" {
   description = "A key-value map of string metadata cloudflare associates with the record"
-  value       = "${module.cloudflare.*.metadata}"
+  value       = "${module.cloudflare.metadata}"
 }
 
 output "zone_id" {
   description = "The zone id of the record"
-  value       = "${module.cloudflare.*.zone_id}"
+  value       = "${module.cloudflare.zone_id}"
 }
