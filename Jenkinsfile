@@ -123,22 +123,31 @@ pipeline{
                     def backend_ip = sh(script: "dig ${records[1].substring(1, records[1].length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
                 }
                 
-                dir('app_config') {
-                    sh """
-                        yes | terraform init
-                    """
+                withCredentials([
+                    azureServicePrincipal(
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET', 
+                        credentialsId: 'azure_demo_creds', 
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
+                        tenantIdVariable: 'ARM_TENANT_ID')])
+                {
+                    dir('app_config') {
+                        sh """
+                            yes | terraform init
+                        """
 
-                    sh"""
-                        terraform plan -input=false \
-                            -var frontend_ip=${frontend_ip} \
-                            -var backend_ip=${backend_ip} \
-                            -var domain_name=${domain_name} \
-                            -out docker.plan
-                    """
+                        sh"""
+                            terraform plan -input=false \
+                                -var frontend_ip=${frontend_ip} \
+                                -var backend_ip=${backend_ip} \
+                                -var domain_name=${domain_name} \
+                                -out docker.plan
+                        """
 
-                    sh'''
-                        terraform apply docker.plan
-                    '''
+                        sh'''
+                            terraform apply docker.plan
+                        '''
+                    }
                 }
             }
         }
