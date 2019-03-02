@@ -40,7 +40,7 @@ catch {
 
 try {
     Get-AzStorageContainer -Name $storageContainerName -Context $ctx -ErrorAction Stop
-    Write-Host "Storage Container $storageContainerName exists"
+    Write-Host "Storage Container $storageContainerName exists... All Backend Components created!"
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
