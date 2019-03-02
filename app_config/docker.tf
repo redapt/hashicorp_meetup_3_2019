@@ -1,5 +1,5 @@
 module "docker" {
-  source = "${path.root}/../modules/docker"
+  source = "../modules/docker"
   frontend_ip = "${var.frontend_ip}"
   database_ip = "${var.backend_ip}"
   domain_name = "${var.domain_name}"

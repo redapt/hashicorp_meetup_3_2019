@@ -120,7 +120,7 @@ pipeline{
                 script {
                     def records = record_names.split(',')
                     def frontend_ip = sh (script: "dig ${records[0].substring(1, records[0].length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
-                    def backend_ip = sh(script: 'dig ${records[1].substring(1, records[1].length() - 1)}.redaptdemo.com +short', returnStdout: true).trim()
+                    def backend_ip = sh(script: "dig ${records[1].substring(1, records[1].length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
                 }
                 
                 dir('app_config') {
