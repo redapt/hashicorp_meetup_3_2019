@@ -13,3 +13,12 @@ variable "domain_name" {
 variable "access_key" {
   description = "The Storage Access Key"
 }
+
+variable "docker_username" {
+  description = "The username to login to docker registry"
+}
+
+variable "docker_password" {
+  description = "The password to login to docker registry"
+}
+

@@ -129,7 +129,12 @@ pipeline{
                         clientSecretVariable: 'ARM_CLIENT_SECRET', 
                         credentialsId: 'azure_demo_creds', 
                         subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
-                        tenantIdVariable: 'ARM_TENANT_ID')])
+                        tenantIdVariable: 'ARM_TENANT_ID'),
+                    usernamePassword(
+                        credentialsId: 'dockerhub', 
+                        passwordVariable: 'DOCKERHUB_SECRET', 
+                        usernameVariable: 'DOCKERHUB_USER')
+                    ])
                 {
                     dir('app_config') {
                         sh """
@@ -141,6 +146,8 @@ pipeline{
                                 -var frontend_ip=${frontend_ip} \
                                 -var backend_ip=${backend_ip} \
                                 -var domain_name=${domain_name} \
+                                -var docker_username=${DOCKERHUB_USER} \
+                                -var docker_password=${DOCKERHUB_SECRET} \
                                 -out docker.plan
                         """
 
