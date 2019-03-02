@@ -5,7 +5,7 @@ server {
 
 server {
     listen 443;
-    server_name     ${DOMAIN_NAME}  *.${DOMAIN_NAME};
+    server_name     ${DOMAIN_NAME}  redaptu.${DOMAIN_NAME};
 
     ssl_certificate           /etc/nginx/cert.crt;
     ssl_certificate_key       /etc/nginx/cert.key;
