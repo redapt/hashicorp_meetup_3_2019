@@ -12,7 +12,7 @@ pipeline{
         string(name: 'userdata_path', description: 'Path to the script housing your userdata setup.', defaultValue: './scripts/setup_vm.sh')
         string(name: 'domain_name', description: 'The domain name being administered by CloudFlare.', defaultValue: 'redaptdemo.com')
         choice(name: 'record_type', description: 'The type of DNS record to create.', choices: ['A','SRV','TXT'])
-        string(name: 'record_names', description: 'The names of the records that you want to apply')
+        string(name: 'record_names', description: 'The names of the records that you want to apply', defaultValue: '"redaptu","redaptdb"')
         string(name: 'record_value', description: 'The string value of the record(s)')
         booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false)
         string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com')
@@ -109,6 +109,33 @@ pipeline{
                                     docker push iancornett/redaptuniversity
                                 '''
                             }
+                        }
+                    }
+                }
+
+                stage('Setup Docker'){
+                    steps {
+                        def records = record_names.split(',')
+                        def frontend_ip = sh (script: "dig ${records[0].substring(1, records[0].Length() - 1)}.redaptdemo.com +short", returnStdout: true).trim()
+                        def backend_ip = sh(script: 'dig ${records[1].substring(1, records[1].Length() - 1)}.redaptdemo.com +short', returnStdout: true).trim()
+
+                        
+                        dir('app_config') {
+                            sh """
+                                yes | terraform init
+                            """
+
+                            sh"""
+                                terraform plan -input=false \
+                                    -var frontend_ip=${frontend_ip} \
+                                    -var backend_ip=${backend_ip} \
+                                    -var domain_name=${domain_name} \
+                                    -out docker.plan
+                            """
+
+                            sh'''
+                                terraform apply docker.plan
+                            '''
                         }
                     }
                 }
