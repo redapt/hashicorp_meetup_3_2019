@@ -41,6 +41,7 @@ pipeline{
                         '''
                     }
                 }
+                sleep 5
             }
         }
         stage("Build App and Platform"){
