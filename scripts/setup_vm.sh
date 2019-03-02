@@ -10,3 +10,8 @@ sudo apt-get upgrade -y
 
 wget -O - get.docker.com | sh
 sudo usermod -aG docker ubuntu
+
+sudo apt-get update
+yes | sudo apt-get upgrade
+
+echo "sudo reboot" | at now + 1 minute
