@@ -2,10 +2,6 @@ variable "domain_name" {
   description = "The domain name being administered by CloudFlare."
 }
 
-variable "num_records" {
-  description = "the number of records to create"
-}
-
 variable "record_type" {
   description = "The type of DNS record to create"
   default     = "A"

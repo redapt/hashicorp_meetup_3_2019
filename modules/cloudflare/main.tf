@@ -7,7 +7,7 @@ data "cloudflare_zones" "zone" {
 }
 
 resource "cloudflare_record" "record" {
-  count   = "${var.num_records}"
+  count   = "${length(var.record_names)}"
   domain  = "${var.domain_name}"
   name    = "${element(var.record_names, count.index)}"
   type    = "${var.record_type}"
