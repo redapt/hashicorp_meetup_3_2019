@@ -2,6 +2,8 @@
 
 sudo export DEBIAN_FRONTEND=noninteractive
 
+[[ $(id -u) -eq 0 ]] || exec sudo /bin/bash -c "$(printf '%q ' "$BASH_SOURCE" "$@")"
+
 sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 2375 -j ACCEPT
 
@@ -10,7 +12,7 @@ sudo usermod -aG docker ubuntu
 
 cat << EOF > /etc/docker/daemon.json
 {
-    hosts: [
+    "hosts": [
         "unix:///var/run/docker.sock",
         "tcp://0.0.0.0:2375"
     ]
