@@ -125,14 +125,18 @@ pipeline{
                         usernameVariable: 'DOCKERHUB_USER')
                     ])
                 {
+
+                    sh '''
+                        export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
+                        export TF_VAR_backend_ip=$(terraform output azure_public_ip)
+                    '''
+
                     dir('app_config') {
                         sh '''
                             yes | terraform init
                         '''
 
                         sh'''
-                            export TF_VAR_frontend_ip=$(cat aws.txt)
-                            export TF_VAR_backend_ip=$(cat azure.txt)
                             terraform plan \
                                 -var domain_name="${domain_name}" \
                                 -var docker_username="${DOCKERHUB_USER}" \
