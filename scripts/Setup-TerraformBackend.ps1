@@ -30,8 +30,8 @@ try {
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
     $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
     $env:ARM_ACCESS_KEY=$keys[0].Value
-    Write-Output "access_key=$keys[0].Value.ToString()" | Out-File -FilePath ../terraform.tfvars
-    Write-Output "access_key=$keys[0].Value.ToString()" | Out-File -FilePath ../app_config/terraform.tfvars
+    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../terraform.tfvars
+    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../app_config/terraform.tfvars
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
