@@ -15,6 +15,6 @@ COPY --from=build /published /app
 
 WORKDIR /app
 
-EXPOSE 80 443
+EXPOSE 5000
 
 ENTRYPOINT [ "dotnet", "RedaptUniversity.dll" ]
