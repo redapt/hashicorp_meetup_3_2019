@@ -5,7 +5,8 @@ pipeline{
             stage('Copy Artifacts'){
                 agent any
                 steps {
-                    copyArtifacts filter: '**/*.pem', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: './app'
+                    copyArtifacts filter: '**/*.pem', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
+                    copyArtifacts filter: '**/*.tfvars', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
                 }
             }
             stage('Build PFX Certificate') {

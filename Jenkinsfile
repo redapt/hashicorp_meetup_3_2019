@@ -100,13 +100,16 @@ pipeline{
                     '''
 
                     stash name: 'certs', includes: '**/*.pem'
+                    stash name: 'config', includes: '**/*.tfvars'
                 }
             }
         }
         stage('Archive Artifacts') {
             steps {
                 unstash name: 'certs'
+                unstash name: 'config'
                 archiveArtifacts artifacts: 'app/*.pem', onlyIfSuccessful: true
+                archiveArtifacts artifacts: '**/*.tfvars', onlyIfSuccessful: true
             }
         }
     }
