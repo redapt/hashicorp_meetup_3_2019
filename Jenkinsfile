@@ -98,11 +98,14 @@ pipeline{
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
                     '''
+
+                    stash name: 'certs' includes: '**/*.pem'
                 }
             }
         }
         stage('Archive Artifacts') {
             steps {
+                unstash name: 'certs'
                 archiveArtifacts artifacts: 'app/*.pem', onlyIfSuccessful: true
             }
         }
