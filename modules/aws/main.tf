@@ -6,10 +6,15 @@ resource "aws_key_pair" "keypair" {
 
 # Create VM host for Docker
 resource "aws_instance" "docker" {
-  ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
-  key_name      = "${var.key_name}"
-  tags          = "${var.tags}"
+  ami                         = "${data.aws_ami.ubuntu.id}"
+  instance_type               = "t2.micro"
+  key_name                    = "${var.key_name}"
+  instance_type               = "${var.vm_size}"
+  associate_public_ip_address = true
+  vpc_security_group_ids      = ["${aws_security_group.sg.id}"]
+  subnet_id                   = "${aws_subnet.subnet.id}"
+  key_name                    = "${aws_key_pair.keypair.key_name}"
+  tags                        = "${var.tags}"
 
   root_block_device {
     volume_size = 32
@@ -28,9 +33,119 @@ resource "aws_instance" "docker" {
   }
 }
 
-# Create Public IP
-resource "aws_eip" "public" {
-  instance = "${aws_instance.docker.id}"
-  vpc      = true
-  tags     = "${var.tags}"
+resource "aws_internet_gateway" "gw" {
+  vpc_id = "${aws_vpc.vpc.id}"
+
+  tags {
+    Project  = "${var.project_name}"
+    Location = "${var.location}"
+  }
+}
+
+resource "aws_route_table_association" "rta" {
+  route_table_id = "${aws_vpc.vpc.default_route_table_id}"
+  subnet_id      = "${aws_subnet.subnet.id}"
+}
+
+resource "aws_route" "egress" {
+  route_table_id         = "${aws_vpc.vpc.default_route_table_id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.gw.id}"
+}
+
+resource "aws_vpc" "vpc" {
+  cidr_block = "10.12.0.0/16"
+
+  tags {
+    Project  = "${var.project_name}"
+    Location = "${var.location}"
+  }
+}
+
+resource "aws_subnet" "subnet" {
+  vpc_id     = "${aws_vpc.vpc.id}"
+  cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
+
+  tags {
+    Project  = "${var.project_name}"
+    Location = "${var.location}"
+  }
+}
+
+resource "aws_security_group" "sg" {
+  vpc_id = "${aws_vpc.vpc.id}"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 8
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 2375
+    to_port     = 2375
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Project  = "${var.project_name}"
+    Location = "${var.location}"
+  }
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "hypervisor"
+    values = ["xen"]
+  }
+
+  filter {
+    name   = "is-public"
+    values = ["true"]
+  }
+
+  filter {
+    name   = "owner-id"
+    values = ["679593333241"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"]
+  }
 }
