@@ -26,7 +26,7 @@ resource "docker_container" "frontend" {
 resource "null_resource" "add_remote_files" {
   provisioner "file" {
     content =  "${data.terraform_remote_state.state.certificate_pem}"
-    destination = "/home/ubuntu/cert.pem"
+    destination = "/home/ubuntu/cert.crt"
 
     connection {
       host           = "${var.frontend_ip}"
@@ -106,8 +106,8 @@ resource "docker_container" "nginx" {
   }
 
   volumes {
-    host_path = "/home/ubuntu/cert.pem"
-    container_path = "/etc/nginx/cert.pem"
+    host_path = "/home/ubuntu/cert.crt"
+    container_path = "/etc/nginx/cert.crt"
   }
 }
 
