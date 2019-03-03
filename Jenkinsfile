@@ -103,7 +103,7 @@ pipeline{
             agent any
             steps {
                 sh'''
-                    echo "developer" | password.txt
+                    echo "developer" | tee password.txt
                     openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -CAfile app/ca.pem -nodes -passin password.txt
                 '''
             }
