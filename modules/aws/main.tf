@@ -9,7 +9,7 @@ resource "aws_instance" "docker" {
   ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "t2.micro"
   key_name                    = "${var.key_name}"
-  instance_type               = "${var.vm_size}"
+  instance_type               = "t3.small"
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.sg.id}"]
   subnet_id                   = "${aws_subnet.subnet.id}"
@@ -37,8 +37,8 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.vpc.id}"
 
   tags {
-    Project  = "${var.project_name}"
-    Location = "${var.location}"
+    Project  = "Hashicorp Meetup 3/6/2019"
+    Location = "us-west-2"
   }
 }
 
@@ -57,8 +57,8 @@ resource "aws_vpc" "vpc" {
   cidr_block = "10.12.0.0/16"
 
   tags {
-    Project  = "${var.project_name}"
-    Location = "${var.location}"
+    Project  = "Hashicorp Meetup 3/6/2019"
+    Location = "us-west-2"
   }
 }
 
@@ -67,8 +67,8 @@ resource "aws_subnet" "subnet" {
   cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
 
   tags {
-    Project  = "${var.project_name}"
-    Location = "${var.location}"
+    Project  = "Hashicorp Meetup 3/6/2019"
+    Location = "us-west-2"
   }
 }
 
@@ -111,41 +111,7 @@ resource "aws_security_group" "sg" {
   }
 
   tags {
-    Project  = "${var.project_name}"
-    Location = "${var.location}"
-  }
-}
-
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "hypervisor"
-    values = ["xen"]
-  }
-
-  filter {
-    name   = "is-public"
-    values = ["true"]
-  }
-
-  filter {
-    name   = "owner-id"
-    values = ["679593333241"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"]
+    Project  = "Hashicorp Meetup 3/6/2019"
+    Location = "us-west-2"
   }
 }
