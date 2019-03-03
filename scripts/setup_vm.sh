@@ -10,16 +10,16 @@ sudo iptables -A INPUT -p tcp --dport 2375 -j ACCEPT
 wget -O - get.docker.com | sh
 sudo usermod -aG docker ubuntu
 
-cat << EOF > /etc/docker/daemon.json
-{
-    "hosts": [
-        "unix:///var/run/docker.sock",
-        "tcp://0.0.0.0:2375"
-    ]
-}
+echo "Creating Docker Daemon config"
+sudo mkdir /etc/systemd/system/docker.service.d
+sudo cat << EOF > /etc/systemd/system/docker.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
 EOF
 
+echo "upgrading binaries"
 sudo apt-get update
-yes | sudo apt-get upgrade
+yes | sudo apt-get upgrade > /dev/null
 
 echo "sudo reboot" | at now + 1 minute
