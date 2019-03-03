@@ -1,16 +1,21 @@
+resource "docker_image" "app" {
+  name = "${data.docker_registry_image.redaptu.name}"
+  pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
+}
 
 resource "docker_container" "frontend" {
-  alias = "fe"
+  provider = "docker.fe"
   depends_on = [
     "docker_container.mssql",
     "null_resource.setup_sql"
   ]
   name = "${data.docker_registry_image.redaptu.name}"
-  pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
+  image = "${docker_image.app.latest}"
+  
  
- env {
-   SQLCONNSTR_SchoolContext = "${data.template_file.connection_string.rendered}"
- }
+ env = [
+   "SQLCONNSTR_SchoolContext=${data.template_file.connection_string.rendered}"
+ ]
 }
 
 resource "null_resource" "add_remote_files" {
@@ -54,11 +59,17 @@ resource "null_resource" "add_remote_files" {
   }
 }
 
-resource "docker_container" "nginx" {
-  alias = "fe"
-  depends_on = ["null_resource.add_remote_files"]
+resource "docker_image" "nginx" {
   name = "${data.docker_registry_image.nginx.name}"
   pull_triggers = ["${data.docker_registry_image.nginx.sha256_digest}"]
+}
+
+
+resource "docker_container" "nginx" {
+  provider = "docker.fe"
+  depends_on = ["null_resource.add_remote_files"]
+  name = "nginx_frontend"
+  image = "${docker_image.nginx.latest}"
   privileged = true
   network_mode = "host"
 
@@ -100,11 +111,15 @@ resource "random_string" "sql_password" {
   special = false
 }
 
+resource "docker_image" "mssql" {
+  name = "${data.docker_registry_image.mssql.name}"
+  pull_triggers = ["${data.docker_registry_image.mssql.sha256_digest}"]  
+}
 
 resource "docker_container" "mssql" {
-  alias = "db"
-  name = "${data.docker_registry_image.mssql.name}"
-  pull_triggers = ["${data.docker_registry_image.mssql.sha256_digest}"]
+  provider = "docker.db"
+  name = "redaptu-sql"
+  image = "${docker_image.mssql.latest}"
   restart = "always"
   start = true
   ports {
@@ -113,10 +128,10 @@ resource "docker_container" "mssql" {
     protocol = "tcp"
   }
 
-  env {
-    ACCEPT_EULA = true
-    SA_PASSWORD = "${random_string.sql_password.result}"
-  }
+  env = [
+    "ACCEPT_EULA=true",
+    "SA_PASSWORD=${random_string.sql_password.result}"
+  ]
 }
 
 resource "null_resource" "setup_sql" {
