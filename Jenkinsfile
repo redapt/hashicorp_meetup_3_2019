@@ -18,86 +18,84 @@ pipeline{
         string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
     }
     stages{
-        retry(2) {
-            stage("Fetch sources"){
-                steps 
-                {   
-                    deleteDir()         
-                    git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
-                }
+        stage("Fetch sources"){
+            steps 
+            {   
+                deleteDir()         
+                git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
             }
-            stage("Setup Terraform Backend"){
-                steps {
-                    withCredentials([
-                        azureServicePrincipal(
-                            clientIdVariable: 'ARM_CLIENT_ID',
-                            clientSecretVariable: 'ARM_CLIENT_SECRET', 
-                            credentialsId: 'azure_demo_creds', 
-                            subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
-                            tenantIdVariable: 'ARM_TENANT_ID')])
-                    {
+        }
+        stage("Setup Terraform Backend"){
+            steps {
+                withCredentials([
+                    azureServicePrincipal(
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET', 
+                        credentialsId: 'azure_demo_creds', 
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
+                        tenantIdVariable: 'ARM_TENANT_ID')])
+                {
 
-                        dir('scripts'){
-                            sh '''
-                                powershell Setup-TerraformBackend.ps1
-                            '''
-                        }
-
-                    }
-                    sleep 5
-                }
-            }
-            stage('Build Terraform Base'){
-                agent any
-                steps {
-                    withCredentials([
-                        [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
-                        string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
-                        string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'),
-                        azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
-                        ]) 
-                    {                
-                        sh'''
-                            export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
-                        '''
-
-                        echo "Initialize Terraform"
-                        retry(3) {
-                            sh'''
-                                yes | terraform init
-                            '''
-                        }
-                        
-                    retry(3){
-                        echo "Terraform Plan - Platform"
-                        sh'''
-                            export USE_ARM_MSI=true
-
-                            terraform plan -var cidr_blocks="${cidr_blocks}" \
-                                -var public_key_path="${public_key_path}" \
-                                -var userdata_path="${userdata_path}" \
-                                -var domain_name="${domain_name}" \
-                                -var record_names=[${record_names}] \
-                                -var proxied=${proxied} \
-                                -var email_address="${email_address}" \
-                                -var subject_alternative_name=[${subject_alternative_names}] \
-                                -out platform.plan
-                        '''
-                        sshagent(['meetup_ssh']) {
-                            echo "Apply Platform Plan"
-                            sh'''
-                                terraform apply platform.plan
-                            '''
-                        }
-                    }
+                    dir('scripts'){
                         sh '''
-                            echo "frontend_ip=$(terraform output aws_public_ip)" | tee -a app/terraform.tfvars
-                            echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app/terraform/tfvars
-                            terraform output issuer_pem | tee app/ca.pem
-                            terraform output certificate_pem | tee app/cert.pem
-                            terraform output private_key_pem | tee app/key.pem
+                            powershell Setup-TerraformBackend.ps1
                         '''
                     }
+
+                }
+                sleep 5
+            }
+        }
+        stage('Build Terraform Base'){
+            agent any
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
+                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
+                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'),
+                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
+                    ]) 
+                {                
+                    sh'''
+                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
+                    '''
+
+                    echo "Initialize Terraform"
+                    retry(3) {
+                        sh'''
+                            yes | terraform init
+                        '''
+                    }
+                    
+                retry(3){
+                    echo "Terraform Plan - Platform"
+                    sh'''
+                        export USE_ARM_MSI=true
+
+                        terraform plan -var cidr_blocks="${cidr_blocks}" \
+                            -var public_key_path="${public_key_path}" \
+                            -var userdata_path="${userdata_path}" \
+                            -var domain_name="${domain_name}" \
+                            -var record_names=[${record_names}] \
+                            -var proxied=${proxied} \
+                            -var email_address="${email_address}" \
+                            -var subject_alternative_name=[${subject_alternative_names}] \
+                            -out platform.plan
+                    '''
+                    sshagent(['meetup_ssh']) {
+                        echo "Apply Platform Plan"
+                        sh'''
+                            terraform apply platform.plan
+                        '''
+                    }
+                }
+                    sh '''
+                        echo "frontend_ip=$(terraform output aws_public_ip)" | tee -a app/terraform.tfvars
+                        echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app/terraform/tfvars
+                        terraform output issuer_pem | tee app/ca.pem
+                        terraform output certificate_pem | tee app/cert.pem
+                        terraform output private_key_pem | tee app/key.pem
+                    '''
                 }
             }
         }
