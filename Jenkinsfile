@@ -99,7 +99,7 @@ pipeline{
                         terraform output private_key_pem | tee app/key.pem
                     '''
 
-                    stash name: 'certs' includes: '**/*.pem'
+                    stash name: 'certs', includes: '**/*.pem'
                 }
             }
         }
