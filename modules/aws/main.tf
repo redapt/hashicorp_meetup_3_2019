@@ -7,9 +7,8 @@ resource "aws_key_pair" "keypair" {
 # Create VM host for Docker
 resource "aws_instance" "docker" {
   ami                         = "${data.aws_ami.ubuntu.id}"
-  instance_type               = "t2.micro"
+  instance_type               = "t2.small"
   key_name                    = "${var.key_name}"
-  instance_type               = "t3.small"
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.sg.id}"]
   subnet_id                   = "${aws_subnet.subnet.id}"
@@ -54,7 +53,7 @@ resource "aws_route" "egress" {
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block = "10.12.0.0/16"
+  cidr_block = "${var.cidr_block}"
 
   tags {
     Project  = "Hashicorp Meetup 3/6/2019"
