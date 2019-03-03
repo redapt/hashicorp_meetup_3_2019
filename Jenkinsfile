@@ -77,7 +77,6 @@ pipeline{
                             -var userdata_path="${userdata_path}" \
                             -var domain_name="${domain_name}" \
                             -var record_names=[${record_names}] \
-                            -var record_value=[${record_value}] \
                             -var proxied=${proxied} \
                             -var email_address="${email_address}" \
                             -var subject_alternative_name=[${subject_alternative_names}] \
