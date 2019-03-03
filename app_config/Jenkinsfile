@@ -1,6 +1,18 @@
 pipeline{
     agent any
+    properties([
+        parameters([
+            string(name: 'domain_name', description: 'The domain name you\'re deploying to.', defaultValue: 'redaptdemo.com')
+        ])
+    ])
     stages{
+        stage("Fetch sources"){
+            steps 
+            {   
+                deleteDir()         
+                git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
+            }
+        }
         stage('Setup Docker'){
             steps {
                 withCredentials([
