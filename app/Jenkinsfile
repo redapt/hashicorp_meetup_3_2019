@@ -1,10 +1,11 @@
 pipeline{
     agent any
+    options { preserveStashes() }
     stages{
             stage('Copy Artifacts'){
                 agent any
                 steps {
-                    copyArtifacts filter: 'app/*.pem', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: './app'
+                    copyArtifacts filter: '**/*.pem', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: './app'
                 }
             }
             stage('Build PFX Certificate') {
@@ -34,9 +35,6 @@ pipeline{
             }
     }
     post{
-        always{
-            echo "========always========"
-        }
         success{
             echo "========pipeline executed successfully ========"
         }
