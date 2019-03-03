@@ -16,6 +16,11 @@ resource "docker_container" "frontend" {
  env = [
    "SQLCONNSTR_SchoolContext=${data.template_file.connection_string.rendered}"
  ]
+
+  ports {
+    internal = 5000
+    external = 5000
+  }
 }
 
 resource "null_resource" "add_remote_files" {
