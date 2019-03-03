@@ -169,7 +169,7 @@ namespace RedaptUniversity
                     options.Listen(IPAddress.Any, 5000);
                     options.Listen(IPAddress.Any, 80);
                     options.Listen(IPAddress.Any, 443, listenOptions => {
-                        listenOptions.UseHttps("certificate.pfx");
+                        listenOptions.UseHttps("certificate.pfx", "developer");
                     });
                 });
     }

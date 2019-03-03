@@ -103,7 +103,7 @@ pipeline{
             agent any
             steps {
                 sh'''
-                    openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -certfile app/ca.pem -nodes
+                    openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -CAfile app/ca.pem -nodes -password developer
                 '''
             }
         }
