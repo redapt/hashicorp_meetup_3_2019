@@ -94,9 +94,9 @@ pipeline{
                     sh '''
                         export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
                         export TF_VAR_backend_ip=$(terraform output azure_public_ip)
-                        export INTERMEDIATE_CA_CERT=$(terraform output issuer_pem) > /dev/null
-                        export CERT_PUBLIC_KEY=$(terraform output certificate_pem) > /dev/null
-                        export CERT_PRIVATE_KEY=$(terraform output private_key_pem) > /dev/null
+                        export INTERMEDIATE_CA_CERT="$(terraform output issuer_pem)"
+                        export CERT_PUBLIC_KEY="$(terraform output certificate_pem)"
+                        export CERT_PRIVATE_KEY="$(terraform output private_key_pem)"
                     '''
                 }
             }
