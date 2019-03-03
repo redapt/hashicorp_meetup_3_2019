@@ -67,7 +67,8 @@ pipeline{
                             yes | terraform init
                         '''
                     }
-
+                    
+                retry(3){
                     echo "Terraform Plan - Platform"
                     sh'''
                         export USE_ARM_MSI=true
@@ -85,13 +86,11 @@ pipeline{
                     '''
                     sshagent(['meetup_ssh']) {
                         echo "Apply Platform Plan"
-                        retry(3){
-                            sh'''
-                                terraform apply platform.plan
-                            '''
-                        }
+                        sh'''
+                            terraform apply platform.plan
+                        '''
                     }
-
+                }
                     sh '''
                         export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
                         export TF_VAR_backend_ip=$(terraform output azure_public_ip)
