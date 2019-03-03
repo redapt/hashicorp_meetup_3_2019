@@ -18,8 +18,13 @@ resource "docker_container" "frontend" {
  ]
 
   ports {
-    internal = 5000
-    external = 5000
+    internal = 80
+    external = 80
+  }
+
+  ports {
+    internal = 443
+    external = 443
   }
 }
 

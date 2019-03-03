@@ -90,8 +90,8 @@ pipeline{
                     }
                 }
                     sh '''
-                        export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
-                        export TF_VAR_backend_ip=$(terraform output azure_public_ip)
+                        echo "frontend_ip=$(terraform output aws_public_ip)" | tee -a app/terraform.tfvars
+                        echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app/terraform/tfvars
                         terraform output issuer_pem | tee app/ca.pem
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
@@ -121,46 +121,6 @@ pipeline{
                             echo ${DOCKERHUB_SECRET} | docker login -u ${DOCKERHUB_USER} --password-stdin
                             docker push iancornett/redaptuniversity
                         '''
-                    }
-                }
-            }
-        }
-        stage('Setup Docker'){
-            steps {
-                withCredentials([
-                    azureServicePrincipal(
-                        clientIdVariable: 'ARM_CLIENT_ID',
-                        clientSecretVariable: 'ARM_CLIENT_SECRET', 
-                        credentialsId: 'azure_demo_creds', 
-                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', 
-                        tenantIdVariable: 'ARM_TENANT_ID'),
-                    usernamePassword(
-                        credentialsId: 'dockerhub', 
-                        passwordVariable: 'DOCKERHUB_SECRET', 
-                        usernameVariable: 'DOCKERHUB_USER')
-                    ])
-                {
-
-                    dir('app_config') {
-                        sh '''
-                            yes | terraform init
-                        '''
-
-                        sh'''
-                            echo "domain_name=${domain_name}" | tee -a terraform.tfvars
-                            echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars
-                            echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars
-                        '''
-
-                        sh'''
-                            terraform plan -out docker.plan
-                        '''
-
-                        sshagent(['meetup_ssh']) {
-                            sh'''
-                                terraform apply docker.plan
-                            '''
-                        }
                     }
                 }
             }
