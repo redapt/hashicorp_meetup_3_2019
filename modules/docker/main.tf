@@ -9,7 +9,7 @@ resource "docker_container" "frontend" {
     "docker_container.mssql",
     "null_resource.setup_sql"
   ]
-  name = "${data.docker_registry_image.redaptu.name}"
+  name = "redapt_university"
   image = "${docker_image.app.latest}"
   
  
@@ -136,14 +136,11 @@ resource "docker_container" "mssql" {
 
 resource "null_resource" "setup_sql" {
   depends_on = ["docker_container.mssql"]
-  provisioner "local-exec" {
-    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"${file("${path.module}/scripts/SQLConfig.sql")}\""
-  }
 
   provisioner "local-exec" {
-    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"CREATE DATABASE 'CU-1'; GO\""
+    command = "sleep 60"
   }
   provisioner "local-exec" {
-    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -Q \"${file("${path.module}/scripts/populatedb.sql")}\""
+    command = "sqlcmd -S ${var.database_ip} -U sa -P ${random_string.sql_password.result} -d master -W -i ${path.module}/scripts/SQLConfig.sql"
   }
 }
