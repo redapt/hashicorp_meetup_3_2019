@@ -131,11 +131,11 @@ pipeline{
                     ])
                 {
                     dir('app_config') {
-                        sh """
+                        sh '''
                             yes | terraform init
-                        """
+                        '''
 
-                        sh"""
+                        sh'''
                             export TF_VAR_frontend_ip=$(cat ../aws.txt)
                             export TF_VAR_backend_ip=$(cat ../azure.txt)
                             terraform plan \
@@ -143,7 +143,7 @@ pipeline{
                                 -var docker_username="${DOCKERHUB_USER}" \
                                 -var docker_password="${DOCKERHUB_SECRET}" \
                                 -out docker.plan
-                        """
+                        '''
 
                         sh'''
                             terraform apply docker.plan
