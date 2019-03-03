@@ -101,7 +101,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;   // CreateScope
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Net;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RedaptUniversity
 {
@@ -109,6 +112,32 @@ namespace RedaptUniversity
     {
         public static void Main(string[] args)
         {
+            var pfx = new X509Certificate2();
+            var certPath = Directory.GetCurrentDirectory().ToString() + "/certificate.pfx";
+            if (File.Exists(certPath))
+            {
+                try
+                {
+                    var rawBytes = File.ReadAllBytes(certPath);
+                    pfx = new X509Certificate2(rawBytes);
+                }
+                catch (Exception)
+                {
+                    try {
+                        var rawBytes = File.ReadAllBytes(certPath);
+                        pfx = new X509Certificate2(rawBytes);
+                    }
+                    catch (CryptographicException ex){
+                        Console.WriteLine($"Could not open certificate!\n\n{ex.Message}");
+                        throw;
+                    }
+                    catch (Exception ex){
+                        Console.WriteLine("Another error occurred, see exception details");
+                        Console.WriteLine(ex.Message);
+                        throw;
+                    }
+                }
+            }
             var host = CreateWebHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -138,6 +167,10 @@ namespace RedaptUniversity
                 .UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Any, 5000);
+                    options.Listen(IPAddress.Any, 80);
+                    options.Listen(IPAddress.Any, 443, listenOptions => {
+                        listenOptions.UseHttps("certificate.pfx");
+                    });
                 });
     }
 }
