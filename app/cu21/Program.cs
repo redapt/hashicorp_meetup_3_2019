@@ -103,6 +103,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Net;
+using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -119,7 +120,12 @@ namespace RedaptUniversity
                 try
                 {
                     var rawBytes = File.ReadAllBytes(certPath);
-                    pfx = new X509Certificate2(rawBytes);
+                    var securePassword = new SecureString();
+                    foreach (var c in "developer")
+                    {
+                        securePassword.AppendChar(c);
+                    }
+                    pfx = new X509Certificate2(rawBytes, securePassword);
                 }
                 catch (Exception)
                 {
@@ -166,11 +172,25 @@ namespace RedaptUniversity
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                 {
-                    options.Listen(IPAddress.Any, 5000);
-                    options.Listen(IPAddress.Any, 80);
-                    options.Listen(IPAddress.Any, 443, listenOptions => {
-                        listenOptions.UseHttps("certificate.pfx", "developer");
-                    });
+                    var certPath = Directory.GetCurrentDirectory().ToString() + "/certificate.pfx";
+                    var securePassword = new SecureString();
+                    foreach (var c in "developer")
+                    {
+                        securePassword.AppendChar(c);
+                    }
+                    var pfx = new X509Certificate2(certPath, securePassword);
+                    if (System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                    {
+                        options.Listen(IPAddress.Loopback, 8081);
+                        options.Listen(IPAddress.Loopback, 8443,
+                            listenOptions => { listenOptions.UseHttps(pfx); });
+                    }
+                    else
+                    {
+                        options.Listen(IPAddress.Any, 80);
+                        options.Listen(IPAddress.Any, 443,
+                            listenOptions => { listenOptions.UseHttps(pfx); });
+                    }
                 });
     }
 }
