@@ -3,11 +3,11 @@ data "docker_registry_image" "redaptu" {
 }
 
 data "docker_registry_image" "mssql" {
-  name = "microsoft/mssql-server-linux:latest"
+  name = "microsoft/mssql-server-linux:2017-latest"
 }
 
 data "docker_registry_image" "nginx" {
-  name = "nginx:latest"
+  name = "nginx:stable"
 }
 
 data "terraform_remote_state" "state" {
