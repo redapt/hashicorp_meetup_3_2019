@@ -94,8 +94,23 @@ pipeline{
                     sh '''
                         export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
                         export TF_VAR_backend_ip=$(terraform output azure_public_ip)
+                        export INTERMEDIATE_CA_CERT=$(terraform output issuer_pem) > /dev/null
+                        export CERT_PUBLIC_KEY=$(terraform output certificate_pem) > /dev/null
+                        export CERT_PRIVATE_KEY=$(terraform output private_key_pem) > /dev/null
                     '''
                 }
+            }
+        }
+        stage('Build PFX Certificate') {
+            agent any
+            steps {
+                sh'''
+                    echo $INTERMEDIATE_CA_CERT | tee app/ca.pem
+                    echo $CERT_PUBLIC_KEY | tee app/cert.pem
+                    echo $CERT_PRIVATE_KEY | tee app/key.pem 
+
+                    openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -certfile app/ca.pem
+                '''
             }
         }
         stage('Build Website Container') {
@@ -103,7 +118,7 @@ pipeline{
             steps {
                 dir('app') {
                     sh'''
-                        docker build . -t iancornett/redaptuniversity:latest -t iancornett/redaptuniversity
+                        docker build --compress . -t iancornett/redaptuniversity:latest -t iancornett/redaptuniversity
                     '''
 
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_SECRET', usernameVariable: 'DOCKERHUB_USER')]) {
