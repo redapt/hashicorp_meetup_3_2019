@@ -16,6 +16,6 @@ COPY ./certificate.pfx /app
 
 WORKDIR /app
 
-EXPOSE 5000
+EXPOSE 80 443
 
 ENTRYPOINT [ "dotnet", "RedaptUniversity.dll" ]
