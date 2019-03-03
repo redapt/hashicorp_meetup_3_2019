@@ -13,7 +13,6 @@ pipeline{
         string(name: 'domain_name', description: 'The domain name being administered by CloudFlare.', defaultValue: 'redaptdemo.com')
         choice(name: 'record_type', description: 'The type of DNS record to create.', choices: ['A','SRV','TXT'])
         string(name: 'record_names', description: 'The names of the records that you want to apply', defaultValue: '"redaptu","redaptdb"')
-        string(name: 'record_value', description: 'The string value of the record(s)')
         booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false)
         string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com')
         string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
@@ -94,9 +93,9 @@ pipeline{
                     sh '''
                         export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
                         export TF_VAR_backend_ip=$(terraform output azure_public_ip)
-                        export INTERMEDIATE_CA_CERT="$(terraform output issuer_pem)"
-                        export CERT_PUBLIC_KEY="$(terraform output certificate_pem)"
-                        export CERT_PRIVATE_KEY="$(terraform output private_key_pem)"
+                        terraform output issuer_pem | tee app/ca.pem
+                        terraform output certificate_pem | tee app/cert.pem
+                        terraform output private_key_pem | tee app/key.pem
                     '''
                 }
             }
@@ -105,11 +104,7 @@ pipeline{
             agent any
             steps {
                 sh'''
-                    echo $INTERMEDIATE_CA_CERT | tee app/ca.pem
-                    echo $CERT_PUBLIC_KEY | tee app/cert.pem
-                    echo $CERT_PRIVATE_KEY | tee app/key.pem 
-
-                    openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -certfile app/ca.pem
+                    openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -certfile app/ca.pem -nodes
                 '''
             }
         }
