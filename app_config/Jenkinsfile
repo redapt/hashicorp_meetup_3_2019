@@ -16,8 +16,8 @@ pipeline{
                         usernameVariable: 'DOCKERHUB_USER')
                     ])
                 {
-                    copyArtifacts filter: 'app/*.tfvars', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
-                    
+                    copyArtifacts filter: '**/*.tfvars', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
+
                     dir('app_config') {
                         sh '''
                             yes | terraform init
