@@ -142,11 +142,11 @@ pipeline{
 
                             sh"""
                                 terraform plan \
-                                    -var frontend_ip=${frontend_ip} \
-                                    -var backend_ip=${backend_ip} \
-                                    -var domain_name=${domain_name} \
-                                    -var docker_username=${DOCKERHUB_USER} \
-                                    -var docker_password=${DOCKERHUB_SECRET} \
+                                    -var frontend_ip="${frontend_ip}" \
+                                    -var backend_ip="${backend_ip}" \
+                                    -var domain_name="${domain_name}" \
+                                    -var docker_username="${DOCKERHUB_USER}" \
+                                    -var docker_password="${DOCKERHUB_SECRET}" \
                                     -out docker.plan
                             """
 
