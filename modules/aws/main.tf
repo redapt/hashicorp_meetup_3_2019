@@ -7,7 +7,8 @@ resource "aws_key_pair" "keypair" {
 # Create VM host for Docker
 resource "aws_instance" "docker" {
   ami                         = "${data.aws_ami.ubuntu.id}"
-  instance_type               = "t2.small"
+  instance_type               = "t3.small"
+  availability_zone           = "us-west-2a"
   key_name                    = "${var.key_name}"
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.sg.id}"]
