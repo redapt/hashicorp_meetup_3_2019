@@ -133,8 +133,8 @@ pipeline{
                         '''
 
                         sh'''
-                            export TF_VAR_frontend_ip=$(cat ../aws.txt)
-                            export TF_VAR_backend_ip=$(cat ../azure.txt)
+                            export TF_VAR_frontend_ip=$(cat aws.txt)
+                            export TF_VAR_backend_ip=$(cat azure.txt)
                             terraform plan \
                                 -var domain_name="${domain_name}" \
                                 -var docker_username="${DOCKERHUB_USER}" \
