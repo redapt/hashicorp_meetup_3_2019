@@ -90,6 +90,11 @@ pipeline{
                             terraform apply platform.plan
                         '''
                     }
+
+                    sh '''
+                        export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
+                        export TF_VAR_backend_ip=$(terraform output azure_public_ip)
+                    '''
                 }
             }
         }
@@ -126,27 +131,26 @@ pipeline{
                     ])
                 {
 
-                    sh '''
-                        export TF_VAR_frontend_ip=$(terraform output aws_public_ip)
-                        export TF_VAR_backend_ip=$(terraform output azure_public_ip)
-                    '''
-
                     dir('app_config') {
                         sh '''
                             yes | terraform init
                         '''
 
                         sh'''
-                            terraform plan \
-                                -var domain_name="${domain_name}" \
-                                -var docker_username="${DOCKERHUB_USER}" \
-                                -var docker_password="${DOCKERHUB_SECRET}" \
-                                -out docker.plan
+                            echo "domain_name=${domain_name}" | tee -a terraform.tfvars
+                            echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars
+                            echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars
                         '''
 
                         sh'''
-                            terraform apply docker.plan
+                            terraform plan -out docker.plan
                         '''
+
+                        sshagent(['meetup_ssh']) {
+                            sh'''
+                                terraform apply docker.plan
+                            '''
+                        }
                     }
                 }
             }
