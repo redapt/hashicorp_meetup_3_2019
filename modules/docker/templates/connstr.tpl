@@ -1,1 +1,1 @@
-Server=${DB_IP};Integrated Security=False;User ID=RedaptUser;Password=R3dapt123!;Database=CU-1
+Server=${DB_IP};Integrated Security=False;User ID=RedaptUser;Password=R3dapt123!;Database=RU
