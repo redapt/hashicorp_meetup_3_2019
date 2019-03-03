@@ -91,7 +91,7 @@ pipeline{
                 }
                     sh '''
                         echo "frontend_ip=$(terraform output aws_public_ip)" | tee -a app/terraform.tfvars
-                        echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app/terraform/tfvars
+                        echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app/terraform.tfvars
                         terraform output issuer_pem | tee app/ca.pem
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
