@@ -1,10 +1,9 @@
 pipeline{
     agent any
-    properties([
-        parameters([
-            string(name: 'domain_name', description: 'The domain name you\'re deploying to.', defaultValue: 'redaptdemo.com')
-        ])
-    ])
+
+    parameters {
+        string(name: 'domain_name', description: 'The domain name you\'re deploying to.', defaultValue: 'redaptdemo.com')
+    }
     stages{
         stage("Fetch sources"){
             steps 
