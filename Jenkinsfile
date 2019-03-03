@@ -1,6 +1,8 @@
 pipeline{
     agent any
-    
+
+    options { preserveStashes() }
+
     environment {
         TF_IN_AUTOMATION = 1
         CLOUDFLARE_EMAIL = 'cloudsupport@redapt.com'
@@ -97,6 +99,11 @@ pipeline{
                         terraform output private_key_pem | tee app/key.pem
                     '''
                 }
+            }
+        }
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'app/*.pem', onlyIfSuccessful: true
             }
         }
     }
