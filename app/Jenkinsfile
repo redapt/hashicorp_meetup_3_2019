@@ -1,0 +1,46 @@
+pipeline{
+    agent any
+    options { preserveStashes() }
+    stages{
+            stage('Copy Artifacts'){
+                agent any
+                steps {
+                    copyArtifacts filter: '**/*.pem', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
+                    copyArtifacts filter: '**/*.tfvars', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
+                }
+            }
+            stage('Build PFX Certificate') {
+                agent any
+                steps {
+                    sh'''
+                        openssl pkcs12 -export -out app/certificate.pfx -inkey app/key.pem -in app/cert.pem -CAfile app/ca.pem -nodes -passout pass:developer
+                    '''
+                }
+            }
+            stage('Build Website Container') {
+                agent any
+                steps {
+                    dir('app') {
+                        sh'''
+                            docker build --compress . -t iancornett/redaptuniversity:latest -t iancornett/redaptuniversity
+                        '''
+
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_SECRET', usernameVariable: 'DOCKERHUB_USER')]) {
+                            sh'''
+                                echo ${DOCKERHUB_SECRET} | docker login -u ${DOCKERHUB_USER} --password-stdin
+                                docker push iancornett/redaptuniversity
+                            '''
+                        }
+                    }
+                }
+            }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

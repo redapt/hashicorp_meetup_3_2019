@@ -30,7 +30,8 @@ try {
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
     $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
     $env:ARM_ACCESS_KEY=$keys[0].Value
-    Write-Output "access_key=$keys[0].Value" | Out-File -FilePath ../terraform.tfvars
+    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../terraform.tfvars
+    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../app_config/terraform.tfvars
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
@@ -39,17 +40,20 @@ catch {
 
 try {
     Get-AzStorageContainer -Name $storageContainerName -Context $ctx -ErrorAction Stop
-    Write-Host "Storage Container $storageContainerName exists"
+    Write-Host "Storage Container $storageContainerName exists... All Backend Components created!"
 }
 catch {
     Write-Host "Creating storage container $storageContainerName"
+
     if (-not ($ctx)) {
         $ctx = New-AzStorageContext -ConnectionString $storageAccount.Context.ConnectionString
     }
+
     New-AzStorageContainer -Name $storageContainerName -Context $ctx -Permission Container
     $connstr_array = $ctx.ConnectionString.Split(';')
     $accountKey = $connstr_array[$connstr_array.Length - 1].Split('=')
     Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ../terraform.tfvars
+    Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ../app_config/terraform.tfvars
 }
 
 Write-Output "storage_account_name=$storageAccountName" | Out-File -FilePath ../terraform.tfvars -Append

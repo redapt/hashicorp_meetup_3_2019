@@ -50,7 +50,7 @@ resource "azurerm_virtual_machine" "vm" {
   resource_group_name   = "${azurerm_resource_group.rg.name}"
   location              = "${var.location}"
   network_interface_ids = ["${azurerm_network_interface.nic.id}"]
-  vm_size               = "Standard_B1s"
+  vm_size               = "Standard_B1ms"
 
   os_profile {
     computer_name  = "${local.name_prefix}-azure-vm"

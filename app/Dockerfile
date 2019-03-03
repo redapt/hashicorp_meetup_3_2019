@@ -12,6 +12,7 @@ FROM microsoft/dotnet:2.1-aspnetcore-runtime as runtime
 ARG SQLCONNSTR_SchoolContext 
 
 COPY --from=build /published /app
+COPY ./certificate.pfx /app
 
 WORKDIR /app
 

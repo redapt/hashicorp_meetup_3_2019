@@ -101,7 +101,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;   // CreateScope
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Net;
+using System.Security;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RedaptUniversity
 {
@@ -109,6 +113,37 @@ namespace RedaptUniversity
     {
         public static void Main(string[] args)
         {
+            var pfx = new X509Certificate2();
+            var certPath = Directory.GetCurrentDirectory().ToString() + "/certificate.pfx";
+            if (File.Exists(certPath))
+            {
+                try
+                {
+                    var rawBytes = File.ReadAllBytes(certPath);
+                    var securePassword = new SecureString();
+                    foreach (var c in "developer")
+                    {
+                        securePassword.AppendChar(c);
+                    }
+                    pfx = new X509Certificate2(rawBytes, securePassword);
+                }
+                catch (Exception)
+                {
+                    try {
+                        var rawBytes = File.ReadAllBytes(certPath);
+                        pfx = new X509Certificate2(rawBytes);
+                    }
+                    catch (CryptographicException ex){
+                        Console.WriteLine($"Could not open certificate!\n\n{ex.Message}");
+                        throw;
+                    }
+                    catch (Exception ex){
+                        Console.WriteLine("Another error occurred, see exception details");
+                        Console.WriteLine(ex.Message);
+                        throw;
+                    }
+                }
+            }
             var host = CreateWebHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -137,7 +172,25 @@ namespace RedaptUniversity
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                 {
-                    options.Listen(IPAddress.Any, 5000);
+                    var certPath = Directory.GetCurrentDirectory().ToString() + "/certificate.pfx";
+                    var securePassword = new SecureString();
+                    foreach (var c in "developer")
+                    {
+                        securePassword.AppendChar(c);
+                    }
+                    var pfx = new X509Certificate2(certPath, securePassword);
+                    if (System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                    {
+                        options.Listen(IPAddress.Loopback, 8081);
+                        options.Listen(IPAddress.Loopback, 8443,
+                            listenOptions => { listenOptions.UseHttps(pfx); });
+                    }
+                    else
+                    {
+                        options.Listen(IPAddress.Any, 80);
+                        options.Listen(IPAddress.Any, 443,
+                            listenOptions => { listenOptions.UseHttps(pfx); });
+                    }
                 });
     }
 }
