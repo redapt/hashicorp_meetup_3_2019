@@ -31,6 +31,10 @@ pipeline{
 
                     dir('app_config') {
                         sh '''
+                            export TF_LOG=INFO
+                        '''
+                        
+                        sh '''
                             yes | terraform init
                         '''
 
