@@ -57,3 +57,11 @@ variable "subject_alternative_names" {
   description = "The certificate's subject alternative names, domains that this certificate will also be recognized for."
   default     = []
 }
+
+variable "docker_username" {
+  description = "The username to login to docker registry"
+}
+
+variable "docker_password" {
+  description = "The password to login to docker registry"
+}

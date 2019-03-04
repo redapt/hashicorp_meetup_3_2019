@@ -39,12 +39,9 @@ module "letsencrypt" {
   ]
 }
 
-resource "local_file" "aws" {
-  content = "${module.aws.public_ip}"
-  filename = "${path.root}/app_config/aws.txt"
-}
-
-resource "local_file" "azure" {
-  content = "${module.azure.public_ip}"
-  filename = "${path.root}/app_config/azure.txt"
+module "docker" {
+  source = "../modules/docker"
+  frontend_ip = "${module.aws.public_ip}"
+  database_ip = "${module.azure.public_ip}"
+  domain_name = "${var.domain_name}"
 }
