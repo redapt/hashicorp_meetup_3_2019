@@ -41,7 +41,7 @@ pipeline{
                         '''
 
                         sh'''
-                            terraform plan -out docker.plan
+                            terraform plan -out=docker.plan
                         '''
 
                         sshagent(['meetup_ssh']) {
