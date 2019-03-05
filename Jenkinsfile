@@ -52,15 +52,10 @@ pipeline{
             agent any
             steps {
                 withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
-                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'),
-                    string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'),
-                    azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')
-                    ]) 
-                {                
-                    sh'''
-                        export CLOUDFLARE_API_KEY=${CLOUDFLARE_TOKEN}
-                    '''
+                    [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4ac9ab41-5279-443b-a9d8-1d56b6bace81', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
+                        string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_TOKEN'), 
+                        string(credentialsId: 'cloudflare_api_key', variable: 'CLOUDFLARE_API_KEY'), 
+                        azureServicePrincipal(clientIdVariable: 'ARM_CLIENT_ID', clientSecretVariable: 'ARM_CLIENT_SECRET', credentialsId: 'azure_demo_creds', subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID', tenantIdVariable: 'ARM_TENANT_ID')]) {            
 
                     echo "Initialize Terraform"
                     retry(3) {
