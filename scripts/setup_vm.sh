@@ -20,7 +20,7 @@ EOF
 
 echo "upgrading binaries"
 sudo apt-get update
-yes | sudo apt-get upgrade --force-yes
+sudo apt-get -o Dpkg::Options::="--force-confold" upgrade -q -y --force-yes
 
 echo "sudo reboot" | at now + 2 minute
 echo "machine configured!"
