@@ -14,11 +14,17 @@ resource "aws_instance" "docker" {
   vpc_security_group_ids      = ["${aws_security_group.sg.id}"]
   subnet_id                   = "${aws_subnet.subnet.id}"
   key_name                    = "${aws_key_pair.keypair.key_name}"
-  tags                        = "${var.tags}"
+  
 
   root_block_device {
     volume_size = 32
     volume_type = "gp2"
+  }
+
+  tags {
+    Project  = "Hashicorp Meetup 3/6/2019"
+    Location = "us-west-2"
+    Name = "Hashicorp Meetup FE"
   }
 
   provisioner "remote-exec" {
