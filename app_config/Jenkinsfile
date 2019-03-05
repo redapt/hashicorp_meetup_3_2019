@@ -27,7 +27,7 @@ pipeline{
                         usernameVariable: 'DOCKERHUB_USER')
                     ])
                 {
-                    copyArtifacts filter: '**/*.tfvars', projectName: 'HashicorpMeetup', selector: lastSuccessful(), target: '.'
+                    copyArtifacts filter: '**/*.tfvars', projectName: 'HashicorpMeetupPlatform', selector: lastSuccessful(), target: '.'
 
                     dir('app_config') {
 
