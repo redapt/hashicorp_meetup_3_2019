@@ -32,7 +32,7 @@ pipeline{
                     dir('app_config') {
 
                         withEnv([
-                            "TF_LOG=ERROR"
+                            "TF_IN_AUTOMATION=1"
                         ]){
                         
                             sh '''
