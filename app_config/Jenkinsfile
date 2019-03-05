@@ -39,11 +39,11 @@ pipeline{
                                 yes | terraform init
                             '''
 
-                            // sh'''
-                            //     echo "domain_name=${domain_name}" | tee -a terraform.tfvars
-                            //     echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars
-                            //     echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars
-                            // '''
+                            sh'''
+                                echo "domain_name=${domain_name}" | tee -a terraform.tfvars
+                                echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars
+                                echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars
+                            '''
 
                             sh'''
                                 terraform plan
