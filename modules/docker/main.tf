@@ -1,4 +1,5 @@
 resource "docker_image" "app" {
+  provider      = "docker.fe"
   name          = "${data.docker_registry_image.redaptu.name}"
   keep_locally  = true
   pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
@@ -77,6 +78,7 @@ resource "random_string" "sql_password" {
 }
 
 resource "docker_image" "mssql" {
+  provider      = "docker.db"
   name          = "${data.docker_registry_image.mssql.name}"
   keep_locally  = true
   pull_triggers = ["${data.docker_registry_image.mssql.sha256_digest}"]
