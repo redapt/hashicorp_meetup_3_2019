@@ -40,9 +40,9 @@ pipeline{
                             '''
 
                             sh'''
-                                echo "domain_name=${domain_name}" | tee -a terraform.tfvars
-                                echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars
-                                echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars
+                                echo "domain_name=${domain_name}" | tee -a terraform.tfvars > /dev/null
+                                echo "docker_username=${DOCKERHUB_USER}" | tee -a terraform.tfvars > /dev/null
+                                echo "docker_password=${DOCKERHUB_SECRET}" | tee -a terraform.tfvars > /dev/null
                             '''
 
                             sh'''
