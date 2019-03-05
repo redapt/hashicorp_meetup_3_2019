@@ -47,9 +47,9 @@ pipeline{
                                 cat terraform.tfvars
                             """
 
-                            // sh'''
-                            //     terraform plan -var-file=terraform.tfvars -out=docker.plan
-                            // '''
+                            sh'''
+                                terraform plan -var-file=terraform.tfvars -out=docker.plan
+                            '''
 
                             sshagent(['meetup_ssh']) {
                                 sh'''

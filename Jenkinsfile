@@ -86,14 +86,19 @@ pipeline{
                         '''
                     }
                 }
-                    sh '''
-                        echo 'frontend_ip="$(terraform output aws_public_ip)"' | tee -a app_config/terraform.tfvars
-                        echo 'backend_ip="$(terraform output azure_public_ip)"' | tee -a app_config/terraform.tfvars
+
+                script {
+                    def AWS_IP=sh(script:'terraform output aws_public_ip', returnStdout: true).trim()
+                    def AZURE_IP=sh(script: 'terraform output azure_public_ip', returnStdout: true).trim()
+
+                    sh """
+                        echo 'frontend_ip="${AWS_IP}"' > app_config/terraform.tfvars
+                        echo 'backend_ip="${AZURE_IP}"' >> app_config/terraform.tfvars
                         terraform output issuer_pem | tee app/ca.pem
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
-                    '''
-
+                    """
+                }
                     stash name: 'certs', includes: '**/*.pem'
                     stash name: 'config', includes: '**/*.tfvars'
                 }
