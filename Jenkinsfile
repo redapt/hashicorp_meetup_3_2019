@@ -110,6 +110,8 @@ pipeline{
                         terraform output issuer_pem | tee app/ca.pem
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
+                        docker -H tcp://${AWS_IP}:2375 pull iancornett/redaptuniversity
+                        docker -H tcp://${AZURE_IP}:2375 pull mcr.microsoft.com/mssql/server:2017-latest
                     """
                 }
                     stash name: 'certs', includes: '**/*.pem'
