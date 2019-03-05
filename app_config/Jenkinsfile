@@ -39,21 +39,21 @@ pipeline{
                                 yes | terraform init
                             '''
 
-                            sh'''
-                                echo "domain_name=\"${domain_name}\"" | tee -a terraform.tfvars > /dev/null
-                                echo "docker_username=\"${DOCKERHUB_USER}\"" | tee -a terraform.tfvars > /dev/null
-                                echo "docker_password=\"${DOCKERHUB_SECRET}\"" | tee -a terraform.tfvars > /dev/null
+                            sh"""
+                                echo 'domain_name="${domain_name}"' >> terraform.tfvars
+                                echo 'docker_username="${DOCKERHUB_USER}"' >> terraform.tfvars
+                                echo 'docker_password="${DOCKERHUB_SECRET}"' >> terraform.tfvars
 
                                 cat terraform.tfvars
-                            '''
+                            """
 
-                            sh'''
-                                terraform plan
-                            '''
+                            // sh'''
+                            //     terraform plan -var-file=terraform.tfvars -out=docker.plan
+                            // '''
 
                             sshagent(['meetup_ssh']) {
                                 sh'''
-                                    terraform apply docker.plan
+                                    terraform apply -auto-approve
                                 '''
                             }
                         }
