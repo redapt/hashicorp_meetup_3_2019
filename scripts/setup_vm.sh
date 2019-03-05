@@ -18,9 +18,5 @@ ExecStart=
 ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
 EOF
 
-echo "upgrading binaries"
-sudo apt-get update
-sudo apt-get -o Dpkg::Options::="--force-confold" upgrade -q -y --force-yes
-
 echo "sudo reboot" | at now + 2 minute
 echo "machine configured!"
