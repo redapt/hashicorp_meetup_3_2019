@@ -2,10 +2,10 @@ if(-not(Get-Module -ListAvailable -Name Az)){
     Install-Module Az -Force -Scope CurrentUser
 }
 
-#[PSCredential]$Creds = [pscredential]::new($env:ARM_CLIENT_ID,$(ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force))
+[PSCredential]$Creds = [pscredential]::new($env:ARM_CLIENT_ID,$(ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force))
 
 Import-Module Az
-#Connect-AzAccount -Tenant $env:ARM_TENANT_ID -ServicePrincipal -Credential $Creds
+Connect-AzAccount -Tenant $env:ARM_TENANT_ID -ServicePrincipal -Credential $Creds
 
 $resourceGroupName = "hashicorp-meetup-backend-rg"
 $location = "WestUS2"
