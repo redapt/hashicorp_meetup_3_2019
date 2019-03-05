@@ -20,6 +20,7 @@ EOF
 
 echo "upgrading binaries"
 sudo apt-get update
-yes | sudo apt-get upgrade > /dev/null
+yes | sudo apt-get upgrade
 
-echo "sudo reboot" | at now + 1 minute
+echo "sudo reboot" | at now + 2 minute
+echo "machine configured!"
