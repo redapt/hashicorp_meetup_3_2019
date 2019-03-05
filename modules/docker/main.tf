@@ -1,5 +1,6 @@
 resource "docker_image" "app" {
   name = "${data.docker_registry_image.redaptu.name}"
+  keep_locally = true
   pull_triggers = ["${data.docker_registry_image.redaptu.sha256_digest}"]
 }
 
@@ -69,53 +70,6 @@ resource "null_resource" "add_remote_files" {
   }
 }
 
-# resource "docker_image" "nginx" {
-#   name = "${data.docker_registry_image.nginx.name}"
-#   pull_triggers = ["${data.docker_registry_image.nginx.sha256_digest}"]
-# }
-
-
-# resource "docker_container" "nginx" {
-#   provider = "docker.fe"
-#   depends_on = ["null_resource.add_remote_files"]
-#   name = "nginx_frontend"
-#   image = "${docker_image.nginx.latest}"
-#   privileged = true
-#   network_mode = "host"
-
-#   ports {
-#     internal = 443
-#     external = 443
-#   }
-
-#   ports {
-#     internal = 80
-#     external = 80
-#   }
-
-#   volumes {
-#     host_path = "/home/ubuntu/redaptu.conf"
-#     container_path = "/etc/nginx/sites-available/redaptu.${var.domain_name}.conf"
-#     read_only = true
-#   }
-
-#   volumes {
-#     host_path = "/home/ubuntu/redaptu.conf"
-#     container_path = "/etc/nginx/sites-enabled/redaptu.${var.domain_name}.conf"
-#     read_only = true
-#   }
-
-#   volumes {
-#     host_path = "/home/ubuntu/cert.key"
-#     container_path = "/etc/nginx/cert.key"
-#   }
-
-#   volumes {
-#     host_path = "/home/ubuntu/cert."
-#     container_path = "/etc/nginx/cert.crt"
-#   }
-# }
-
 resource "random_string" "sql_password" {
   length = 16
   special = false
@@ -123,6 +77,7 @@ resource "random_string" "sql_password" {
 
 resource "docker_image" "mssql" {
   name = "${data.docker_registry_image.mssql.name}"
+  keep_locally = true
   pull_triggers = ["${data.docker_registry_image.mssql.sha256_digest}"]  
 }
 
