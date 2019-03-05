@@ -30,8 +30,8 @@ try {
     $keys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName
     $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $keys[0].Value
     $env:ARM_ACCESS_KEY=$keys[0].Value
-    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../terraform.tfvars
-    Write-Output "access_key=$($keys[0].Value)" | Out-File -FilePath ../app_config/terraform.tfvars
+    Write-Output "access_key=`"$($keys[0].Value)`"" | Out-File -FilePath ../terraform.tfvars
+    Write-Output "access_key=`"$($keys[0].Value)`"" | Out-File -FilePath ../app_config/terraform.tfvars
 }
 catch {
     Write-Host "Creating Storage Account $storageAccountName in Resource Group $resourceGroupName"
@@ -56,6 +56,6 @@ catch {
     Write-Output "access_key=`"$($accountKey[1])==`"" | Out-File -FilePath ../app_config/terraform.tfvars
 }
 
-Write-Output "storage_account_name=$storageAccountName" | Out-File -FilePath ../terraform.tfvars -Append
+Write-Output "storage_account_name=`"$storageAccountName`"" | Out-File -FilePath ../terraform.tfvars -Append
 Write-Output "container_name=`"$($storageContainerName)`"" | Out-File -FilePath ../terraform.tfvars -Append
 Write-Output "key=`"hashicorp-platform.tfstate`"" | Out-File -FilePath ../terraform.tfvars -Append
