@@ -40,11 +40,11 @@ module "letsencrypt" {
 }
 
 resource "local_file" "aws" {
-  content = "${module.aws.public_ip}"
+  content  = "${module.aws.public_ip}"
   filename = "${path.root}/app_config/aws.txt"
 }
 
 resource "local_file" "azure" {
-  content = "${module.azure.public_ip}"
+  content  = "${module.azure.public_ip}"
   filename = "${path.root}/app_config/azure.txt"
 }

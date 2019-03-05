@@ -21,4 +21,3 @@ variable "docker_username" {
 variable "docker_password" {
   description = "The password to login to docker registry"
 }
-

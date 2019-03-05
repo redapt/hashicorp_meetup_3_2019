@@ -63,8 +63,8 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_subnet" "subnet" {
-  vpc_id     = "${aws_vpc.vpc.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
+  vpc_id            = "${aws_vpc.vpc.id}"
+  cidr_block        = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, 1)}"
   availability_zone = "us-west-2a"
 
   tags {
@@ -103,6 +103,7 @@ resource "aws_security_group" "sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   ingress {
     from_port   = 2375
     to_port     = 2375
