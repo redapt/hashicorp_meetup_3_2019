@@ -15,7 +15,7 @@ pipeline{
         string(name: 'domain_name', description: 'The domain name being administfvarstered by CloudFlare.', defaultValue: 'redaptdemo.com')
         choice(name: 'record_type', description: 'The type of DNS record to cretfvarsate.', choices: ['A','SRV','TXT'])
         string(name: 'record_names', description: 'The names of the records thatfvarst you want to apply', defaultValue: '"redaptu","redaptdb"')
-        booleanParam(name: 'proxied', description: 'Whether the record gets Clotfvarsudflare\'s origin protection; defaults to false.', defaultValue: false)
+        booleanParam(name: 'proxied', description: 'Whether the record gets Cloudflare\'s origin protection; defaults to false.', defaultValue: false)
         string(name: 'email_address', description: 'The contact email address for this account', defaultValue: 'cloudsupport@redapt.com')
         string(name: 'subject_alternative_names', description: 'The certificate\'s subject alternative names, domains that this certificate will also be recognized for.')
     }
@@ -87,8 +87,8 @@ pipeline{
                     }
                 }
                     sh '''
-                        echo "frontend_ip=$(terraform output aws_public_ip)" | tee -a app_config/terraform.tfvars
-                        echo "backend_ip=$(terraform output azure_public_ip)" | tee -a app_config/terraform.tfvars
+                        echo "frontend_ip='$(terraform output aws_public_ip)' | tee -a app_config/terraform.tfvars
+                        echo "backend_ip='$(terraform output azure_public_ip)'" | tee -a app_config/terraform.tfvars
                         terraform output issuer_pem | tee app/ca.pem
                         terraform output certificate_pem | tee app/cert.pem
                         terraform output private_key_pem | tee app/key.pem
