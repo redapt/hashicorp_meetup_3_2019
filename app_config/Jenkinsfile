@@ -46,15 +46,20 @@ pipeline{
 
                                 cat terraform.tfvars
                             """
-
-                            sh'''
-                                terraform plan -var-file=terraform.tfvars -out=docker.plan
-                            '''
-
-                            sshagent(['meetup_ssh']) {
+                            retry {
                                 sh'''
-                                    terraform apply -auto-approve
+                                    terraform plan -var-file=terraform.tfvars -out=docker.plan
                                 '''
+
+                                sshagent(['meetup_ssh']) {
+                                    sh'''
+                                        terraform apply -auto-approve
+                                    '''
+                                }
+
+                                script {
+                                    sleep(60)
+                                }
                             }
                         }
                     }
