@@ -46,7 +46,10 @@ pipeline{
 
                                 cat terraform.tfvars
                             """
-                            retry {
+                            retry(3) {
+                                
+                                sleep 60
+                                
                                 sh'''
                                     terraform plan -var-file=terraform.tfvars -out=docker.plan
                                 '''
@@ -56,10 +59,6 @@ pipeline{
                                         terraform apply -auto-approve
                                     '''
                                 }
-
-                                script {
-                                    sleep(60)
-                                }
                             }
                         }
                     }
@@ -68,11 +67,8 @@ pipeline{
         }
     }
     post{
-        always{
-            echo "========always========"
-        }
         success{
-            echo "========pipeline executed successfully ========"
+            echo "======== Redapt University Demo Succeeded! ========"
         }
         failure{
             echo "========pipeline execution failed========"
