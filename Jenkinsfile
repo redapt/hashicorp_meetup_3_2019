@@ -92,6 +92,12 @@ pipeline{
                                 -var subject_alternative_name=[${subject_alternative_names}] \
                                 -out platform.plan
                         '''
+
+                        input {
+                            message: "Apply Changes?"
+                            ok: "Yes"
+                        }
+
                         sshagent(['meetup_ssh']) {
                             echo "Apply Platform Plan"
                             sh'''

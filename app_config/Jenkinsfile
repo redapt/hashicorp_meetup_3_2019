@@ -43,9 +43,8 @@ pipeline{
                                 echo 'domain_name="${domain_name}"' >> terraform.tfvars
                                 echo 'docker_username="${DOCKERHUB_USER}"' >> terraform.tfvars
                                 echo 'docker_password="${DOCKERHUB_SECRET}"' >> terraform.tfvars
-
-                                cat terraform.tfvars
                             """
+                            
                             retry(3) {
                                 
                                 sleep 60
