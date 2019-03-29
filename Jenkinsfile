@@ -27,6 +27,11 @@ pipeline{
                 git branch: 'jenkins', credentialsId: 'gh_creds', url: 'https://github.com/redapt/hashicorp_meetup_3_2019.git'
             }
         }
+        stage("Install Powershell Core"){
+            sh'''
+                sudo snap install --classic powershell
+            '''
+        }
         stage("Setup Terraform Backend"){
             steps {
                 withCredentials([
