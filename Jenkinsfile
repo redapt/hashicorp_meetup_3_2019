@@ -28,9 +28,11 @@ pipeline{
             }
         }
         stage("Install Powershell Core"){
-            sh'''
-                sudo snap install --classic powershell
-            '''
+            steps{
+                sh'''
+                    sudo snap install --classic powershell
+                '''
+            }
         }
         stage("Setup Terraform Backend"){
             steps {
@@ -54,7 +56,6 @@ pipeline{
             }
         }
         stage('Build Terraform Base'){
-            agent any
             steps {
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4ac9ab41-5279-443b-a9d8-1d56b6bace81', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'], 
